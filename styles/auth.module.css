@@ -1,0 +1,25 @@
+
+.forgot{
+    text-align: right;
+    padding: 0 15px;
+}
+
+.optionLogin{
+    text-align: left;
+    padding: 0 20px;
+}
+
+.optionRegister{
+    text-align: center;
+    padding: 0 20px;
+}
+
+.form{
+    margin-top: 2px;
+    margin-bottom: 100px;
+}
+
+.button{
+    background: #FF5733; 
+    color: white;
+}

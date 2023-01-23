@@ -1,0 +1,43 @@
+
+    .search-container {
+        width: 400px;
+        position: relative;
+        margin: 15px auto;
+        }
+        .search-container input,
+        .search-container .suggestions {
+        width: 100%;
+        background: #fff;
+        text-align: left;
+        }
+        .search-container input {
+        background: rgba(255, 255, 255, 0.2);
+        height: 60px;
+        padding: 0 10px;
+        }
+        .search-container .suggestions {
+        position: absolute;
+        top: 60px;
+        }
+        
+        .sul {
+        display: none;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+        max-height: 200px;
+        overflow-y: auto;
+        }
+        .sul.has-suggestions {
+        display: block;
+        }
+        .sul li {
+        padding: 10px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.2);
+        }
+        .sul li:hover {
+        background-color: #e65c00;
+        }
+        
