@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Product from "./elements/products/product";
 import {  getSiteConfig, setSiteConfig } from '../../components/LocalStorage'
-import { createSlides } from './elements/products/functions'
 import EditProductModal from "./elements/products/ProductModal";
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
@@ -38,6 +37,30 @@ const Products = () => {
   const [productHintData, setProductHintData] = useState(["laptop"]);
 
 
+  /*
+  * createSlides - Create slides based on available categories
+  * Returns: An object containing Arrays of sorted images and 
+  * categories based on available categories
+  */
+ const createSlides = (products) => {
+  let catImg = [];
+  let categories = [];
+  let allCartName =  [];
+
+  products.forEach((product)=>{
+  if (!allCartName.includes(product.category)){
+    categories.push(
+                  {
+                    category: product.category,
+                    imgurl: product.img
+                  }
+                );
+
+    allCartName.push(product.category);
+  }
+  });
+  return categories
+}
 
    
   

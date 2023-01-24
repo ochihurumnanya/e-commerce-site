@@ -1,6 +1,5 @@
 import {  getSiteConfig, setSiteConfig } from '../../components/LocalStorage'
 import { useState, cleanCart, useEffect } from 'react'
-import { createSlides } from './elements/products/functions'
 import OderItem from './elements/oders/OderItem'
 import OderDetails from './elements/oders/OderDetails'
 import { ProductsData } from '../../context/context';
