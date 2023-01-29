@@ -7,7 +7,8 @@ const SearchModal = (props) => {
         siteConfig,
         addRemoveCartItems, 
         btnValue, 
-        setBtnValue
+        setBtnValue,
+        formatPrice
       } = useContext(ProductsData);
 
     return (
@@ -31,11 +32,9 @@ const SearchModal = (props) => {
             <div>
                 <b>Description:</b> { props.searchedProduct.dsc }
                 <p>
-                 <b>Price:</b> #{ props.searchedProduct.price }
+                 <b>Price:</b> { formatPrice(props.searchedProduct.price) }
                 </p>
-                <p>
-                 <b>Available Qty.:</b> #{ props.searchedProduct.qty }
-                </p>
+              
             </div>
             <div style={{ background: btnValue[props.searchedProduct.id] ? siteConfig.color : siteConfig.btnColor }} className="add-to-cart btn-cat"  onClick={()=>{addRemoveCartItems(props.searchedProduct, siteConfig.btnColor, siteConfig.color, setBtnValue)}} > { btnValue[props.searchedProduct.id] ? "Remove From Cart" : "Add To Cart"}</div>
         </div> 
@@ -47,3 +46,7 @@ const SearchModal = (props) => {
     )
 }
 export default SearchModal;
+
+/*
+      <b>Available Qty:</b> { props.searchedProduct.qty }
+*/

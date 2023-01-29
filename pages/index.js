@@ -68,31 +68,74 @@ const products = [
 ];
 
 
+
+//note add created at field optional
+let siteConfigs = {
+  logo: "Float",
+  logoImg: "/img/img4.png",
+  color: "red",
+  btnColor: "orange",
+  about: "we sale all kinds of laptop, tablets and we also supply hole sale etc",
+  shopDsc:"We sale all types of laptop and tablets",
+  currency: "en-NG NGN",
+  minProduct: 2,
+  subscription : true,
+  contact: {
+    address: "Office address/location",
+    phone: "+2349060399343",
+    email: "Office@gmail.com"
+  },
+  //Array of object [{img:["url","url"...], category:["cart","cart"]}]
+  cart:[
+        {
+          category: "laptop",
+          imgurl: "/img/img4.png"
+        },
+        {
+          category: "Tablets",
+          imgurl: "/img/img5.png"
+        }
+  ]
+}
+
+
 const Home = () => {
-  //using context in app
-    const {allProducts, setAllproducts, siteConfig} = useContext(ProductsData);
-     
-    //this should be initialize from product comming from db by site logo Name
+    //using global context
+    const {allProducts, setAllproducts, siteConfig, setUserCurencyCodeAndLocal} = useContext(ProductsData);
+    
     useEffect(()=>{
-      setAllproducts(allProducts)
+      setUserCurencyCodeAndLocal(siteConfig.currency)
     }, [])
-           
+    
+   /*
+    useEffect(()=>{
+      setSiteConfig(siteConfigs)
+    }, [])
+   */
+
+    
+    
      //const products = allProducts || [];
-            return (
-              <>
-                <Slides 
-                  color={siteConfig.color} 
-                  categories={siteConfig.cart}
-                  shopDsc={siteConfig.shopDsc}
-                />
-                
-                <Products 
-                  products={JSON.stringify(allProducts)} 
-                  btnColor={siteConfig.btnColor}
-                  color={siteConfig.color}
-                />
-              </>
-          )
-    }
+     if (siteConfig.cart){
+        return (
+          <>
+            <Slides 
+              color={siteConfig.color} 
+              categories={siteConfig.cart}
+              shopDsc={siteConfig.shopDsc}
+            />
+            
+            <Products 
+              products={JSON.stringify(allProducts)} 
+              btnColor={siteConfig.btnColor}
+              color={siteConfig.color}
+            />
+          </>
+        )
+      } else {
+        return (<center><h1 style={{paddingBottom: "200px"}}>{siteConfig.logo} is under construction</h1></center>)
+      }
+  }
+  
 export default Home;
 

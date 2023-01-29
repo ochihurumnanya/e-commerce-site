@@ -6,6 +6,7 @@ import { ProductsData } from '../context/context';
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import SalseForm from '../elements/cart/SalseForm';
+import { formatPrice } from '../currency/Currency';
 
 
 
@@ -43,7 +44,7 @@ const cart = () => {
   })
   */
   const proceedToCheckout = () => {
-     if ([1,2].includes(getUserInfo().adminLevel)){
+     if ([1,2,3].includes(getUserInfo().adminLevel)){
         setModalShow(true)
      }else{
         router.push('/checkout')
@@ -95,7 +96,7 @@ const cart = () => {
             </center>
             <div style={{margin: '10px', width: "100%"}}>
               <p>
-                <b>Total:</b> <span>#{cartItemsState.reduce((a, c) => a + c.price * c.qty, 0)}</span>
+                <b>Total:</b> <span>{ formatPrice( cartItemsState.reduce((a, c) => a + c.price * c.qty, 0) ) }</span>
               </p>
                 <button id="btn-proceed" onClick={()=> proceedToCheckout()} style={{border: "none", margin: '10px', background: siteConfig.color, color: 'white'}}>
                     Proceed

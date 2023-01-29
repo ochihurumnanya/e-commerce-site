@@ -3,9 +3,12 @@ import styles from '../../styles/AddProduct.module.css'
 import {  getSiteConfig, setSiteConfig } from '../../components/LocalStorage'
 import { useState, useEffect } from 'react';
 import { Hint } from 'react-autocomplete-hint'
+import { ProductsData } from '../../context/context';
+import { useContext } from 'react';
+import Link from 'next/link';
 
 const AddProduct = () => {
-     
+  const { formatPrice, siteConfig } = useContext(ProductsData);
     const [hintData, setHintData] = useState(["laptop"])
     const[fields, setFields] = useState({
       name: '',
@@ -18,33 +21,40 @@ const AddProduct = () => {
 
   const [siteColor, setSiteColor] = useState('orange')
 
+  const [formatedPrice, setFormatedPrice] = useState('')
+
   useEffect(() => {
-    const productCart = getSiteConfig().cart.category ? getSiteConfig().cart.category : [];
+    const productCart = siteConfig.cart.category ? siteConfig.cart.category : [];
     setHintData(productCart);
-    setSiteColor(getSiteConfig().color)
-    //console.log()
+    setSiteColor(siteConfig.color)
   }, [])
 
   const handelChange = (event) =>{
-    setFields({ ...fields, [event.target.name]: event.target.value });
+    if (event.target.name == "qty" || event.target.name == "price"){
+      setFields({...fields, [event.target.name]:Number(event.target.value) < 0 || event.target.value == '' ? '' : Number(event.target.value)})
+      //formatPrice
+      if (event.target.name == "price") setFormatedPrice(formatPrice(Number(event.target.value)))
+      
+    } else {
+      setFields({ ...fields, [event.target.name]: event.target.value });
+    }
   }
-
     
 
 
-    
+  if (siteConfig.subscription){
     return(
         <>
             <div style={{paddingBottom: "100px"}} className="container">
           <form id="shipping-form" action="">
             <div style={{width: "100%"}} className="cart-details">
-              <h6>PRODUCT INFORMATION</h6>
+                  <center><h6>PRODUCT INFORMATION</h6></center>
                   <div className="txt">
                   Enter product name/brand
                   <input className="form-control" onChange={handelChange} value={fields.name} name="name"  type="text" placeholder="product name" required />
                   </div>
                   <div className="txt">
-                    Enter product price
+                    Enter product price. Currency({siteConfig.currency})  {formatedPrice}
                     <input className="form-control" onChange={handelChange} value={fields.price}  name="price" type="number" placeholder="product price" />
                   </div>
                   <div className="txt">
@@ -75,6 +85,15 @@ const AddProduct = () => {
              </div>
         </>
     )
+  } else {
+    return (
+      <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
+        <center>
+          <h3>your annual subscription has expired and you don't have enough credit for automatic renewal. kindly <Link href="/dashboard/credit">click here to subscibe</Link></h3>
+        </center>
+      </div>
+    )
+  }
 }
 
 export default AddProduct;

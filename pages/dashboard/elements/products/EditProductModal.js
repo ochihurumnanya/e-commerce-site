@@ -2,14 +2,19 @@ import Modal from 'react-bootstrap/Modal'
 import { Hint } from 'react-autocomplete-hint'
 import {  getSiteConfig, setSiteConfig } from '../../../../components/LocalStorage'
 import { useState, useEffect } from 'react';
+import { ProductsData } from '../../../../context/context';
+import { useContext } from 'react';
+
+
 //initialize edit product modal
 const EditProductModal = (props) => {
+  const { siteConfig } = useContext(ProductsData);
 
 const [siteColor, setSiteColor] = useState('orange')
 
 
     useEffect(() => {
-        setSiteColor(getSiteConfig().color)
+        setSiteColor(siteConfig.color)
         //console.log()
       }, [])
     
@@ -26,11 +31,11 @@ const [siteColor, setSiteColor] = useState('orange')
             <input className="form-control" onChange={props.handelChange} value={props.fields.name} name="name"  type="text" placeholder="product name" required />
             </div>
             <div className="txt">
-              Enter product price
+              Enter product price. Currency({siteConfig.currency}) {props.formatedPrice}
               <input className="form-control" onChange={props.handelChange} value={props.fields.price}  name="price" type="number" placeholder="product price" />
             </div>
             <div className="txt">
-              Enter available quantity <b>Note</b> total quantity should by {props.fields.qty} + new quantity
+              Enter product quantity. [ Total available quantity = <b>{props.totalQty}</b> ]
               <input className="form-control" onChange={props.handelChange} value={props.fields.qty}  name="qty" type="number" placeholder="available quantity" />
             </div>
             <div className="txt">

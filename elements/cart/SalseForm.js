@@ -5,6 +5,7 @@ import Modal from 'react-bootstrap/Modal'
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 /**
  * 
@@ -43,7 +44,7 @@ import { useRouter } from 'next/router';
  const SalseForm = (props) => {
   
   let router = useRouter();
-  const { siteConfig } = useContext(ProductsData)
+  const { siteConfig, formatPrice } = useContext(ProductsData)
   
   const[fields, setFields] = useState({
     discount: 0,
@@ -59,6 +60,10 @@ import { useRouter } from 'next/router';
       staff: "",
       products:[]
   })
+  
+  const [formatedPrice, setFormatedPrice] = useState(0)
+  
+  const [isSubscribed, setIsSubscribed] = useState(siteConfig.subscription)
 
   const handlePayment = (products) =>{
     //update oder pyment status to paid and subtract all relevent product quntity on server side
@@ -83,7 +88,13 @@ import { useRouter } from 'next/router';
   }
 
   const handelChange = (event) =>{
-    setFields({ ...fields, [event.target.name]: event.target.value < 0 ? 0 : event.target.value });
+    if (event.target.name == "discount"){
+      setFields({...fields, [event.target.name]:Number(event.target.value) < 0 || event.target.value == '' ? '' : Number(event.target.value)})
+      //formatPrice
+      setFormatedPrice(formatPrice(Number(event.target.value)))
+    } else {
+      setFields({ ...fields, [event.target.name]: event.target.value });
+    }
   }
    
       return (
@@ -95,14 +106,13 @@ import { useRouter } from 'next/router';
         </Modal.Header>
         <Modal.Body>
         <div className="container">
-                      {
-                      <div style={{padding: "15px"}}>
+                      <div style={{padding: "15px", display: siteConfig.subscription ? "block" : "none"}}>
                           <div className="txt">
                              Customers Name
                              <input className="form-control" onChange={handelChange} value={fields.name} name="name"  type="text" />
                           </div>
                           <div className="txt">
-                             Discount
+                             Discount Currency({siteConfig.currency})  {formatedPrice}
                              <input className="form-control" onChange={handelChange} value={fields.discount} name="discount"  type="number" />
                           </div>
                           <h4>Shopping Cart</h4>
@@ -121,7 +131,7 @@ import { useRouter } from 'next/router';
                                               <tr key={"i"+index}>
                                                   <td><img className="cat-img" src={item.img} /></td>
                                                   <td>{item.name}</td>
-                                                  <td>{item.price}</td>
+                                                  <td>{formatPrice(item.price)}</td>
                                                   <td>{item.qty}</td>
                                               </tr>
                                           ) : ""
@@ -129,11 +139,16 @@ import { useRouter } from 'next/router';
                                   </tbody>
                               </table>
                               <p>
-                                <b>Amount:</b> <span>#{props.cart ? props.cart.reduce((a, c) => a + c.price * c.qty, 0)  : ""}</span>
+                                <b>Amount:</b> <span>{props.cart ? formatPrice(props.cart.reduce((a, c) => a + c.price * c.qty, 0))  : ""}</span>
                               </p>
                           </div>
                       </div>
-                      }
+                      
+                      <center>
+                        <h3 style={{padding: "15px", display: siteConfig.subscription ? "none" : "block"}}>
+                          your annual subscription has expired and you don't have enough credit for automatic renewal. If you are supper admin? kindly 
+                          <Link href="/dashboard/credit">click here to subscibe</Link> or contact supper admin. Sorry for all inconveniences</h3>
+                      </center>
                   </div>
         </Modal.Body>
         <Modal.Footer>

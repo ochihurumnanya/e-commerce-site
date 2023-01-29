@@ -4,6 +4,7 @@ import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
 
 
+
 /**
  * 
  * @name {*product name} param0
@@ -17,7 +18,14 @@ import { useContext } from 'react';
  */
 const Product = ({btnColor, color, product}) => {
     //Global context object
-    const {addRemoveCartItems, existInCart, btnValue, setBtnValue} = useContext(ProductsData);
+    const {
+        addRemoveCartItems, 
+        existInCart, 
+        btnValue, 
+        setBtnValue, 
+        formatPrice
+    } = useContext(ProductsData);
+
         const parsedProduct = JSON.parse(product)
         
         
@@ -30,30 +38,30 @@ const Product = ({btnColor, color, product}) => {
         },[])
 
         return (
-            <div id="products" className="col-md-6 ">
-            <div className="box">
-            <div  className="img-box">
-                <img  src={ parsedProduct.img } alt="" />
+                <div id="products" className="col-md-6 ">
+                    <div className="box">
+                    <div  className="img-box">
+                        <img  src={ parsedProduct.img } alt="" />
+                    </div>
+                    <div className="detail-box">
+                        <h6>
+                            { parsedProduct.name }
+                        </h6>
+                    </div>
+                    <div>
+                        <b>Description:</b> { parsedProduct.dsc }
+                        <p>
+                            <b>Price:</b> { formatPrice(parsedProduct.price ) }
+                        </p>
+                    </div>
+                    <div style={{ background:  btnValue[parsedProduct.id] ? color : btnColor }} className="add-to-cart btn-cat"  onClick={()=>{addRemoveCartItems(parsedProduct, btnColor, color, setBtnValue)}} > { btnValue[parsedProduct.id] ? "Remove From Cart" : "Add To Cart"}</div>
+                    <div style={{ background: btnColor }} className="new">
+                        <span>
+                            New
+                        </span>
+                    </div>
+                </div> 
             </div>
-            <div className="detail-box">
-                <h6>
-                    { parsedProduct.name }
-                </h6>
-            </div>
-            <div>
-                <b>Description:</b> { parsedProduct.dsc }
-                <p>
-                 <b>Price:</b> #{ parsedProduct.price }
-                </p>
-            </div>
-            <div style={{ background:  btnValue[parsedProduct.id] ? color : btnColor }} className="add-to-cart btn-cat"  onClick={()=>{addRemoveCartItems(parsedProduct, btnColor, color, setBtnValue)}} > { btnValue[parsedProduct.id] ? "Remove From Cart" : "Add To Cart"}</div>
-            <div style={{ background: btnColor }} className="new">
-                <span>
-                    New
-                </span>
-            </div>
-        </div> 
-        </div>
         )
 }
 export default Product

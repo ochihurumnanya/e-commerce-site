@@ -4,6 +4,8 @@ import OderItem from './elements/oders/OderItem'
 import OderDetails from './elements/oders/OderDetails'
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
+import { formatPrice } from '../../currency/Currency';
+import Link from 'next/link';
 
 
 
@@ -97,7 +99,8 @@ const Home = () =>{
   }
 
   const getTotalAmount = (oder) => {
-    return oder.products.reduce((a, c) => a + c.price * c.qty, 0)
+
+    return formatPrice(oder.products.reduce((a, c) => a + c.price * c.qty, 0))
     
   }
 
@@ -137,34 +140,46 @@ const printReciept = (oder) => {
           
         />
       )
-  
-    return (
-      <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
-        <h2 className="mx-auto mt-4 mb-5" style={{width:"300px"}}>
-          Daily Oder(s)
-        </h2>
-        <center>
-          <table style={{width: "100%", paddingBottom: "30px"}}>
-              <tbody>
-                <tr>
-                  <th>Total Item(s)</th>
-                  <th>Total Amount</th>
-                  <th>Total Qty</th>
-                  <th>Date</th>
-                  <th>action</th>
-                  <th></th>
-                </tr>
-                  { odersDisplay }
-              </tbody>
-          </table> 
-        </center>
-        <OderDetails
-                show={modalShow} 
-                onHide={() => setModalShow(false)}
-                oder={oder}
-                printReciept={printReciept}
-            />
-      </div>
-        )
+    
+
+    if (siteConfig.subscription){
+      return (
+        <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
+          <h2 className="mx-auto mt-4 mb-5" style={{width:"300px"}}>
+            Daily Oder(s)
+          </h2>
+          <center>
+            <table style={{width: "100%", paddingBottom: "30px"}}>
+                <tbody>
+                  <tr>
+                    <th>Total Item(s)</th>
+                    <th>Total Amount</th>
+                    <th>Total Qty</th>
+                    <th>Date</th>
+                    <th>action</th>
+                    <th></th>
+                  </tr>
+                    { odersDisplay }
+                </tbody>
+            </table> 
+          </center>
+          <OderDetails
+                  show={modalShow} 
+                  onHide={() => setModalShow(false)}
+                  oder={oder}
+                  printReciept={printReciept}
+              />
+        </div>
+          )
+    } else {
+      return (
+        <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
+          <center>
+            <h3>your annual subscription has expired and you don't have enough credit for automatic renewal. kindly <Link href="/dashboard/credit">click here to subscibe</Link></h3>
+          </center>
+        </div>
+      )
+    }
+    
 }
 export default Home;

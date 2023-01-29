@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# site configs
+/utils
+
 # next.js
 /.next/
 /out/

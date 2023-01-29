@@ -20,7 +20,7 @@ import { useContext } from 'react';
               qty={item.qty}
  */
 const cartItem = ({item, setCartItemsState}) => {
-    const { btnValue, setBtnValue } = useContext(ProductsData);
+    const { btnValue, setBtnValue, formatPrice } = useContext(ProductsData);
     const [qtyValue, setQtyValue] = useState({})
 
 /*
@@ -62,16 +62,23 @@ const removeItem = (id)=>{
 
     useEffect(()=>{
         let obj = {...qtyValue}
-        obj[item.id] = item.qty
+        obj[item.id] = 1;
         setQtyValue(obj)
     }, [])
-
+    
+    /*
+        useEffect(()=>{
+            let obj = {...qtyValue}
+            obj[item.id] = item.qty
+            setQtyValue(obj)
+        }, [])
+    */
     
    return (
     <tr>
         <td><img className="cat-img" src={item.img} /></td>
         <td>{item.name}</td>
-        <td>{item.price}</td>
+        <td>{ formatPrice( item.price )}</td>
         <td><input type="number" onChange={handelChange} className="qty-selects" name={item.id} value={qtyValue[item.id] || ""} style={{textAlign: "center", width: "50px"}} /></td>
         <td><button className="btn-remove-item" onClick={()=>(removeItem(item.id))} style={{border: 'white', background: '#FF5733', color: 'white'}} >Remove</button></td>
     </tr>

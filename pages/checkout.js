@@ -2,6 +2,67 @@
 import { getUserInfo, getShipping, setShipping, getSiteConfig, cleanCart } from '../components/LocalStorage.js'
 import { useState, useEffect } from 'react'
 
+//complete order object
+/*
+  {
+    id: "12356",
+    address: "country, city/state, address",
+    status: "pending",
+    date: "date/time 1",
+    contact: "email, 09060399343",
+    customer: "John", //customers name
+    staff: "", //this should be set on server side
+    products: [
+        {
+          id:"1",
+          name:"dell 640",
+          price:50000,
+          dsc:"Intel 64 bits os",
+          category:"laptops",
+          qty: 5,
+          img: "/img/img5.png"
+        },
+        {
+          id:"2",
+          name:"dell 640",
+          price:50000,
+          dsc:"Intel 64 bits os",
+          category:"smart watches",
+          qty: 2,
+          img: "/img/img4.png"
+        },
+    ],
+  },
+  {
+      id: "1235",
+      address: "country, city/state, address",
+      status: "pending",
+      date: "date/time 2",
+      contact: "email, 09060399343",
+      customer: "John", //customers name
+      staff: "",
+      products: [
+          {
+            id:"1",
+            name:"dell 640",
+            price:50000,
+            dsc:"Intel 64 bits os",
+            category:"laptops",
+            qty: 5,
+            img: "/img/img5.png"
+          },
+          {
+            id:"2",
+            name:"dell 640",
+            price:50000,
+            dsc:"Intel 64 bits os",
+            category:"smart watches",
+            qty: 2,
+            img: "/img/img4.png"
+          },
+      ],
+    }
+*/
 const Checkout = () => {
     const[fields, setFields] = useState({
       name: '',
@@ -19,10 +80,12 @@ const Checkout = () => {
     const handelChange = (event) =>{
         setFields({ ...fields, [event.target.name]: event.target.value });
     }
+
     const submitShipping = (event) => {
         event.preventDefault();
         setShipping(fields)
         //Note save cart items and shipping to database before prodeding to line 20
+        //using the above object model
         cleanCart('shipping');
         cleanCart('cartItems');
         location = "/oder"

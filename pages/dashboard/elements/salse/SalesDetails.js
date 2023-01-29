@@ -1,9 +1,10 @@
 import Modal from 'react-bootstrap/Modal'
+import { ProductsData } from '../../../../context/context';
+import { useContext } from 'react'; 
 
 
  const SalesDetails = (props) => {
-
-  
+  const { formatPrice } = useContext(ProductsData);
       return (
         <Modal {...props} size="lg" aria-labelledby="contained-modal-title-vcenter">
         <Modal.Header closeButton>
@@ -43,7 +44,7 @@ import Modal from 'react-bootstrap/Modal'
                                               <tr key={"i"+index}>
                                                   <td><img className="cat-img" src={item.img} /></td>
                                                   <td>{item.name}</td>
-                                                  <td>{item.price}</td>
+                                                  <td>{formatPrice(item.price)}</td>
                                                   <td>{item.qty}</td>
                                               </tr>
                                           ) : ""
@@ -51,7 +52,7 @@ import Modal from 'react-bootstrap/Modal'
                                   </tbody>
                               </table>
                               <p>
-                                <b>Total:</b> <span>#{props.sale.products ? props.sale.products.reduce((a, c) => a + c.price * c.qty, 0) : ""}</span>
+                                <b>Total:</b> <span>{props.sale.products ? formatPrice(props.sale.products.reduce((a, c) => a + c.price * c.qty, 0)) : ""}</span>
                               </p>
                           </div>
                       </div>

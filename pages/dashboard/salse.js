@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react"
 import SalesItem from "./elements/salse/SalseItem"
 import SalesDetails from "./elements/salse/SalesDetails"
+import { ProductsData } from '../../context/context';
+import { useContext } from 'react';
+import Link from 'next/link'; 
 
 //fill this with products from database. 
 /* All available product */
@@ -68,6 +71,7 @@ let allSalse = [
 
 //{props.sale.products.reduce((a, c) => a + c.price * c.qty, 0)}
   const Salse = () => {
+    const { formatPrice, siteConfig } = useContext(ProductsData);
     const [salse, setSalse] = useState(allSalse)
     const [sale, setSale] = useState({})
     const [modalShow, setModalShow] = useState(false)
@@ -77,7 +81,7 @@ let allSalse = [
       salse.forEach((sale) => {
         products.push(sale.products.reduce((a, c) => a + c.price * c.qty, 0))
       })
-      return products.reduce((a, c) => a + c, 0)
+      return formatPrice(products.reduce((a, c) => a + c, 0))
     }
 
 
@@ -96,26 +100,38 @@ let allSalse = [
             setModalShow={setModalShow}
             sale={sale} 
             salse={salse}
-            amount={sale.products.reduce((a, c) => a + c.price * c.qty, 0)} 
+            amount={formatPrice(sale.products.reduce((a, c) => a + c.price * c.qty, 0))} 
           />
         )
     
         useEffect(()=>{
-          new Chartist.Line(
-            '.ct-chart-line',
-            {
-              labels: ['nxus 230 - 13','dell 420 - 15','iphone 14 pro - 12','wrist whatch - 50'],
-              series: [
-                [13,15,12,50]
-              ],
-            },
-            {
-             showArea: true,
-            }
-            );
+          if (siteConfig.subscription){
+            new Chartist.Line(
+              '.ct-chart-line',
+              {
+                labels: ['nxus 230 - 13','dell 420 - 15','iphone 14 pro - 12','wrist whatch - 50'],
+                series: [
+                  [13,15,12,50]
+                ],
+              },
+              {
+              showArea: true,
+              }
+              );
+          }
         }, [])
-    
 
+        const [salseDate, setSalseDate] = useState("date 0")
+
+        const handleSelseDateChange = (e) => {
+          setSalseDate(e.target.value);
+          alert(salseDate)
+          //calculate total sale from the selected  date
+          //also display salse statistic from the selelcted date
+        }
+    
+  //NOTE SORT ANS DISPLAY FIRST 50 SALSE DATE IN ACCENDING ODER
+  if (siteConfig.subscription){
     return (
         <div  style={{paddingBottom: "100px"}} className="container">
           <div style={{paddingBottom: "100px"}} className="row">
@@ -136,8 +152,7 @@ let allSalse = [
                     <span><i className="fa fa-users"></i> {"Select Date"} </span>
                   </div>
                   <div className="summary-body">
-                    <select className="form-select" >
-                      <option selected> select salse date</option>
+                    <select onChange={handleSelseDateChange} className="form-select" >
                       <option value="date 1">date 1</option>
                       <option value="date 2">date 2</option>
                       <option value="date 3">date 3</option>
@@ -164,7 +179,7 @@ let allSalse = [
             </center>
             <div style={{margin: '10px', width: "100%"}}>
               <p>
-                <b>Total:</b> <span>#{getTotalSale()}</span>
+                <b>Total:</b> <span>{getTotalSale()}</span>
               </p>
             </div>
 
@@ -183,6 +198,15 @@ let allSalse = [
               </div>
             </div>
         </div>
+      )
+  }else{
+    return (
+      <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
+        <center>
+          <h3>your annual subscription has expired and you don't have enough credit for automatic renewal. kindly <Link href="/dashboard/credit">click here to subscibe</Link></h3>
+        </center>
+      </div>
     )
+  }
   }
   export default Salse;

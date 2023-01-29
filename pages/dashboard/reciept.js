@@ -3,11 +3,12 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react'
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
+import Link from 'next/link';
 
 
 const Receipt = () => {
     let router = useRouter();
-    const { siteConfig } = useContext(ProductsData);
+    const { siteConfig, formatPrice } = useContext(ProductsData);
     const [recipt, setRecipt] = useState({})
 
     useEffect(()=>{
@@ -15,10 +16,10 @@ const Receipt = () => {
     }, [])
     //getSalseReceipt
 
-
-    return (
+    if (siteConfig.subscription){
+        return (
                      <>
-                     <div className="card">
+                     <div style={{marginBottom: "70px", marginTop: "10px"}} className="card">
                              <div className="card-header bg-black"></div>
                              <div className="card-body">
                                  <div className="container">
@@ -60,8 +61,8 @@ const Receipt = () => {
                                             <tr key={product.name}>
                                               <td>{product.name}</td>
                                               <td>{product.qty}</td>
-                                              <td>{product.price}</td>
-                                              <td><i className="fas fa-dollar-sign"></i>{product.price * product.qty}</td>
+                                              <td>{formatPrice(product.price)}</td>
+                                              <td><i className="fas fa-dollar-sign"></i>{formatPrice(product.price * product.qty)}</td>
                                             </tr>
                                           ) : ""
                                         }
@@ -73,9 +74,9 @@ const Receipt = () => {
                                      <div className="col-xl-8">
                                      <ul className="list-unstyled float-end me-0">
                                          <li><span className="me-3 float-start">Total Amount:</span><i className="fas fa-dollar-sign"></i> 
-                                            { recipt.products ? recipt.products.reduce((a, c) => a + c.price * c.qty, 0) : "" }
+                                            { recipt.products ? formatPrice(recipt.products.reduce((a, c) => a + c.price * c.qty, 0)) : "" }
                                          </li>
-                                         <li> <span className="me-5">Discount:</span><i className="fas fa-dollar-sign"></i>{ recipt.discount ? recipt.discount : "" }</li>
+                                         <li> <span className="me-5">Discount:</span><i className="fas fa-dollar-sign"></i>{ recipt.discount ? formatPrice(recipt.discount) : "" }</li>
                                      </ul>
                                      </div>
                                  </div>
@@ -85,7 +86,7 @@ const Receipt = () => {
                                      <p className="float-end"
                                          style={{fontSize: "30px", color: "red", fontWeight: "400", fontFmily: "Arial, Helvetica, sans-serif"}}>
                                          Total:
-                                         <span><i className="fas fa-dollar-sign"></i> { recipt.products ? recipt.products.reduce((a, c) => a + c.price * c.qty, 0) - recipt.discount : ""}</span></p>
+                                         <span><i className="fas fa-dollar-sign"></i> { recipt.products ? formatPrice(recipt.products.reduce((a, c) => a + c.price * c.qty, 0) - recipt.discount) : ""}</span></p>
                                      </div>
              
                                  </div>
@@ -103,6 +104,15 @@ const Receipt = () => {
                              <div className="card-footer bg-black"></div>
                          </div>
                      </>
-    )
+        )
+    }else{
+        return (
+            <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
+              <center>
+                <h3>your annual subscription has expired and you don't have enough credit for automatic renewal. kindly <Link href="/dashboard/credit">click here to subscibe</Link></h3>
+              </center>
+            </div>
+          )
+    }
 }
 export default Receipt;

@@ -3,7 +3,6 @@ import Link from "next/link";
 import styles from '../styles/Header.module.css';
 import { cleanCart, getUserInfo, setUserLocation, getUserLocation } from '../components/LocalStorage';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import { ProductsData } from '../context/context';
 import { useContext } from 'react';
 
@@ -50,6 +49,11 @@ const DashboardHeader = ({ setDashboard, color  }) => {
                   <Link href="/dashboard/credit" legacyBehavior>
                     <span style={{display: appuser.adminLevel >= 3 ? "block" : "none"}} className={styles.navLink}>
                       <a className={router.pathname == '/dashboard/credit' ? styles.active : styles.offactive}> CREDIT </a>
+                    </span>
+                  </Link>
+                  <Link href="/dashboard/admin" legacyBehavior>
+                    <span style={{display: appuser.adminLevel >= 3 ? "block" : "none"}} className={styles.navLink}>
+                      <a className={router.pathname == '/dashboard/admin' ? styles.active : styles.offactive}> ADMIN </a>
                     </span>
                   </Link>
                   <Link href="/dashboard/update" legacyBehavior>

@@ -65,12 +65,12 @@ const HomePage = ({ setPage }) => {
             <Form className="d-flex">
                   <input 
                     type="text"
-                    placeholder="Search"
+                    placeholder="visit site"
                     className="form-control me-2 input-with-hint"
                     name="search"
                     aria-label="Search"
                   />
-                  <button  style={{color: "white", marginLeft: "15px", background: "#ee7f35", boder: "#ee7f35"}} type="button" className="btn">Search</button>
+                  <button  style={{color: "white", marginLeft: "15px", background: "#ee7f35", boder: "#ee7f35"}} type="button" className="btn">Go</button>
               </Form>
             </Navbar.Collapse>
         </Container>
@@ -83,7 +83,7 @@ const HomePage = ({ setPage }) => {
             <div className="row">
                 <div className="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-2 order-lg-1" >
                 <h1>Better Solution For Your Business</h1>
-                <h2>Create your fully custormized e-commerce website with just few clicks, manage salse, customers' oder, print reciept, manage admins, set website custom color etc</h2>
+                <h2>Create fully custormized e-commerce website with just few clicks, manage salse, customers' oder, print reciept, manage admins, set website custom color etc</h2>
                 <div className="d-flex justify-content-center justify-content-lg-start">
                     <a onClick={()=>createSite()} className="btn-get-started scrollto">Get Started</a>
                 </div>
