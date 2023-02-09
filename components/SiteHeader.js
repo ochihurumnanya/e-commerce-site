@@ -7,6 +7,7 @@ import { cleanCart, getUserInfo, setUserLocation, getUserLocation } from '../com
 import { useState, useEffect } from 'react'
 import { ProductsData } from '../context/context';
 import { useContext } from 'react';
+import { logOut } from '../api/auth/functions';
 
 
 
@@ -33,9 +34,16 @@ const SiteHeader = ({ setDashboard, color }) => {
 
    
 
-    const logout = () => {
-      cleanCart('userInfo')
-      setAppuser({})
+    const logout = async() => {
+      try{
+        await logOut()
+        router.push("/")
+        cleanCart('userInfo')
+        setAppuser({})
+      }catch(error){
+
+      }
+      
     }
 
     return (

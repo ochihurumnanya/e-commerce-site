@@ -2,13 +2,22 @@ import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
 import { useState } from 'react';
 import Form from 'react-bootstrap/Form'
-import Link from 'next/link';
-
+import Link from 'next/link'
+import { storage } from "../../utils/config/firebaseConfig"
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage"
+import { updateSite, getSiteconfig } from '../../api/site/functions';
+import { setSiteConfig } from '../../components/LocalStorage';
+import Spinner from 'react-bootstrap/Spinner'
+import Alert from 'react-bootstrap/Alert'
 
 
 const Update = () => {
 
     const { siteConfig } = useContext(ProductsData);
+    const [errorMsg, setErrorMsg] = useState();
+    const [apiError, setApiError] = useState("");
+    const [loading, setLoading] = useState(false)
+    const [progress, setProgress] = useState("")
 
     const [ newConfig, setNewConfig] = useState({
         logo: siteConfig.logo,
@@ -25,7 +34,6 @@ const Update = () => {
     })
 
     const handelChange = (event) =>{
-      //setNewConfig({ ...newConfig, [event.target.name]: event.target.value });
       if (event.target.name == "minProduct"){
         setNewConfig({...newConfig, [event.target.name]:Number(event.target.value) < 0 || event.target.value == '' ? '' : Number(event.target.value)})        
       } else {
@@ -34,7 +42,6 @@ const Update = () => {
     }
 
     const handleSiteColorChange = (event) => {
-       //alert(event.target.value)
        //newConfig.color
        setNewConfig({...newConfig, color: event.target.value})
     }
@@ -45,32 +52,123 @@ const Update = () => {
 
 
 
-    const update = (event) => {
+    const update = async (event) => {
       event.preventDefault();
-      const { logoImg, color, btnColor, currency, minProduct, about, shopDsc, address, phone, email } = newConfig;
-      let updatedConfig = {
-                  ...siteConfig,
-                  logoImg: logoImg,
-                  color: color,
-                  btnColor: btnColor,
-                  currency: currency,
-                  minProduct: minProduct,
-                  about: about,
-                  shopDsc: shopDsc,
-                  contact: {
-                      address: address,
-                      phone: phone,
-                      email: email
+      const { logoImg, logo, color, btnColor, currency, minProduct, about, shopDsc, address, phone, email } = newConfig;
+      
+      if (!logo.trim().length && logo.trim().length > 30) { //note this will be verified and sent from create site homePage
+        setErrorMsg("Store name must be less than 30 characters")
+      } else if (!color.trim().length) {
+        setErrorMsg("Select website color")
+      } else if (!logoImg.trim().length) {
+        setErrorMsg("Select image file")
+      } else if (!btnColor.trim().length) {
+        setErrorMsg("Select website button color")
+      } else if (!currency.trim().length) {
+        setErrorMsg("Enter currency infor eg (en-US USD)")
+      } else if (minProduct <= 0) {
+        setErrorMsg("Enter minimum product quantity")
+      } else if (!about.trim().length) {
+        setErrorMsg("Enter about us text")
+      } else if (!shopDsc.trim().length) {
+        setErrorMsg("Enter stores' products categories description")
+      } else if (!address.trim().length) {
+        setErrorMsg("Enter stores' address")
+      } else if (!phone.length) { 
+        setErrorMsg("Enter office line")
+      } else if (!email.trim().length) { 
+        setErrorMsg("Enter office email address")
+      } else{
+          try{
+                let file = document.getElementById("site-logo")?.files[0]
+                if(file) {
+                  setErrorMsg("")
+                  setLoading(true)
+                  setProgress(0)
+
+                  const storageRef = ref(storage, `public/${logo}/files/${file.name}`) //note public/storename/file.name
+                  const uploadTask = uploadBytesResumable(storageRef, file)
+                  
+                  uploadTask.on("state_change", (snapshot) => {
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+                    setProgress(progress)
+                  },
+                  (error) => {
+                    setErrorMsg("An unknown error occurred check internet connectivity and try again")
+                    setLoading(flase)
+                    setProgress(0)
+                  },
+                  () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then( async(downloadURL) => {
+                      setNewConfig({...newConfig, logoImg: downloadURL})
+                      let updatedConfig = {
+                        logo: logo,
+                        logoImg: downloadURL,
+                        color: color,
+                        btnColor: btnColor,
+                        currency: currency,
+                        minProduct: minProduct,
+                        about: about,
+                        shopDsc: shopDsc,
+                        admins: siteConfig.admins,
+                        contact: {
+                            address: address,
+                            phone: phone,
+                            email: email
+                        }
+                      }
+                      //Creates site
+                      setLoading(true)
+                      await updateSite(updatedConfig)
+                      const res = await getSiteconfig({logo:logo})
+                      setSiteConfig(res.data)
+                      location = "/"
+                      setLoading(false)
+                    }) 
+                  }) 
+                } else {
+                  //call update api
+                  let updatedConfig = {
+                    logo: logo,
+                    logoImg: logoImg,
+                    color: color,
+                    btnColor: btnColor,
+                    currency: currency,
+                    minProduct: minProduct,
+                    about: about,
+                    shopDsc: shopDsc,
+                    admins: siteConfig.admins, //all current admins
+                    contact: {
+                        address: address,
+                        phone: phone,
+                        email: email
+                    }
                   }
+                  //Creates site
+                  setLoading(true)
+                  //update website
+                  await updateSite(updatedConfig)
+                  //get updated site config
+                  const res = await getSiteconfig({logo:logo})
+                  setSiteConfig(res.data)
+                  location = "/"
+                  setLoading(false)
                 }
-      console.log(updatedConfig)
+          }catch(error){
+                  setApiError('An error occurred while creating site check internet connection and try again')
+                  setErrorMsg('An error occurred while creating site check internet connection and try again')
+                  setLoading(false)
+                  console.log(error.response.data)
+          }
+     }
     }
     if (siteConfig.subscription){
       return (
-             <div style={{width: "100%", marginBottom: "100px"}} id="update-body" className="container cart-details">
-                 <center><h2>UPDATE SITE</h2></center>
+              <div style={{paddingBottom: "100px"}} className="container">
+              <div style={{paddingBottom: "100px"}}>                 <center><h2>UPDATE SITE</h2></center>
                  <form onSubmit={update}  id="shipping-form" action="">
-                  <div className="cart-details">
+                 { apiError && <Alert variant="danger"><center>{ apiError }</center></Alert> }
+                  <div  style={{background: "#dedede", padding: "20px"}}>
                     <h6>WEBSITE COLOR</h6>
                     <div className="txt">
                        Enter website color
@@ -86,7 +184,7 @@ const Update = () => {
                     </div>
                   </div>
                      <br />
-                  <div className="cart-details">
+                  <div  style={{background: "#dedede", padding: "20px"}}>
                     <h6>WEBSITE INFORMATION</h6>
                     <div className="txt">
                     <div class="col-md-6 col-lg-5 ">
@@ -99,11 +197,11 @@ const Update = () => {
                         />
                         </div>
                     </div>
-                     Upload Business logo 
+                     Update Business logo 
                      <input onChange={handelChange} className="form-control" id="site-logo" type="file" />
                     </div>
                     <div className="txt">
-                       Currency
+                       Currency <b>If you must change this, it should follow the same format</b>
                        <input onChange={handelChange} className="form-control" value={newConfig.currency} name="currency"  type="text" placeholder="currency" required />
                     </div>
                     <div className="txt">
@@ -120,7 +218,7 @@ const Update = () => {
                     </div>
                   </div>
                   <br />
-                  <div className="cart-details">
+                  <div  style={{background: "#dedede", padding: "20px"}}>
                     <h6>Location/contact Info.</h6>
                     <div className="txt">
                        Enter store address
@@ -136,11 +234,18 @@ const Update = () => {
                     </div>
                   </div>
                   <div className="txt">
-                    <button type="submit"  id="btn-b-cart" className="btn" style={{color: "white", background: siteConfig.color, margin: "0 10px"}}>
+                   <center><p style={{color: "red"}}>{ errorMsg }</p></center>
+                  </div>
+                  <div className="txt">
+                    <button type="submit"  style={{display: loading ? "none" : "block", background: siteConfig.color, color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
                        Update site
+                    </button>
+                    <button style={{display: loading ? "block" : "none", background: siteConfig.color, color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading... {progress}%
                     </button>
                   </div>
                 </form>
+            </div>
             </div>
       )
    }else{

@@ -6,14 +6,14 @@ import { ProductsData } from '../context/context';
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import SalseForm from '../elements/cart/SalseForm';
-import { formatPrice } from '../currency/Currency';
+
 
 
 
 const cart = () => {
   let router = useRouter();
 
-  const { btnValue, setBtnValue } = useContext(ProductsData);
+  const { btnValue, setBtnValue, formatPrice } = useContext(ProductsData);
   let siteConfig=getSiteConfig();
   const [cartItemsState, setCartItemsState] = useState([])
   const [modalShow, setModalShow] = useState(false)

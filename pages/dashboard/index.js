@@ -4,7 +4,6 @@ import OderItem from './elements/oders/OderItem'
 import OderDetails from './elements/oders/OderDetails'
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
-import { formatPrice } from '../../currency/Currency';
 import Link from 'next/link';
 
 
@@ -78,7 +77,7 @@ let allOders = [
 
 
 const Home = () =>{
-  const { allProducts, setAllproducts, siteConfig } = useContext(ProductsData);
+  const { allProducts, setAllproducts, siteConfig, formatPrice } = useContext(ProductsData);
  
   const [oders, setOders] = useState(allOders)
   const [oder, setOder] = useState({})

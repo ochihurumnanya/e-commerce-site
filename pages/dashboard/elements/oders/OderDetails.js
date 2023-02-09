@@ -5,14 +5,13 @@ import Modal from 'react-bootstrap/Modal'
 import { ProductsData } from '../../../../context/context';
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
-import { formatPrice } from '../../../../currency/Currency';
 
 
 
  const OderDetails = (props) => {
   
   let router = useRouter();
-  const { siteConfig } = useContext(ProductsData)
+  const { siteConfig, formatPrice } = useContext(ProductsData)
 
   const[fields, setFields] = useState({
     discount: 0,

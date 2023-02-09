@@ -1,16 +1,46 @@
 import styles from '../../styles/auth.module.css'
 import { useState, useEffect, cleanCart } from 'react'
-
+import { logIn } from '../../api/auth/functions';
+import { useRouter } from 'next/router';
+import Alert from 'react-bootstrap/Alert'
+import Spinner from 'react-bootstrap/Spinner'
 
 const  Login = ({ setLocation, siteConfig})=>{
+    let router = useRouter();
     const[fields, setFields] = useState({
         email: '',
         password: ''
     })
 
-    const submitLoginDetails = (event) => {
+    const [errorMsg, setErrorMsg] = useState("");
+    const [apiError, setApiError] = useState("");
+    const [loading, setLoading] = useState(false)
+
+    const submitLoginDetails = async (event) => {
         event.preventDefault();
-        console.log(fields);
+        
+        //console.log(fields);
+
+        setErrorMsg("");
+        setApiError("");
+        const {email, password } = fields
+        if (!email.trim().length) {
+            setErrorMsg("Enter email address")
+        } else if (!password.trim().length) {
+            setErrorMsg("Enter password")
+        } else {
+            try{
+                setLoading(true)
+                //const res = await logIn(email, password)
+                await logIn(email, password)
+                router.push("/")
+                setLoading(false)
+            }catch(error){
+                setApiError("Invalid credentials")
+                setLoading(false)
+            }
+           
+        }
         //send fields via api and await result which will be set to localStorage user
         //which contains admin status of the site etc
         // and save to localStorage
@@ -43,12 +73,19 @@ const  Login = ({ setLocation, siteConfig})=>{
                         <div className={styles.form}>
                             <div className="col-10 offset-1 col-lg-8 offset-lg-2 div-wrapper d-flex justify-content-center align-items-center">
                                 <div className="div-to-align">
+                                    { apiError && <Alert variant="danger"><center>{ apiError }</center></Alert> }
                                     <form onSubmit={submitLoginDetails} id="auth-form">
                                         <input onChange={handelChange} type="email" value={fields.email} name="email" className="form-control"  placeholder="Email Address" required />
                                         <p></p>
                                         <input onChange={handelChange} type="password" value={fields.password} name="password" className="form-control"  placeholder="Password" required />
                                         <p></p>
-                                        <button type="submit"  style={{background: siteConfig.color || '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >Login</button>
+                                        <center><p style={{color: "red"}}>{ errorMsg }</p></center>
+                                        <button type="submit"  style={{display: loading ? "none" : "block", background: siteConfig.color || '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                                            Login
+                                        </button>
+                                        <button style={{display: loading ? "block" : "none", background: siteConfig.color || '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading...
+                                        </button>    
                                         <p></p>
                                         <p className={styles.optionLogin}>
                                             <span className="psw">Or <a onClick={()=>{setLocation("register")}} style={{color: siteConfig.color || '#8b045e'}} id="forgot-pass">Register</a></span>

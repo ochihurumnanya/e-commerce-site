@@ -1591,4 +1591,9 @@ background-color: grey;
     transform: translateY(-10px);
   }
 }
+
+/* error text*/
+.error-text{
+ color: "red"
+}
         

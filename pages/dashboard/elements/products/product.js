@@ -1,4 +1,6 @@
-import { formatPrice } from "../../../../currency/Currency"
+
+import { ProductsData } from '../../../../context/context';
+import { useContext } from 'react';
 
 
 /**
@@ -9,6 +11,8 @@ import { formatPrice } from "../../../../currency/Currency"
  * @returns 
  */
 const Product = ({product, deleteProduct, sellectEditProduct, low}) => {
+
+    const { formatPrice } = useContext(ProductsData)
     
     return (
         <tr style={{color: low ? "red" : ""}}>

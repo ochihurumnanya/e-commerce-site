@@ -2,6 +2,12 @@ import styles from '../../styles/auth.module.css'
 import { useState } from 'react'
 import { setUserInfo, getUserInfo,} from '../../components/LocalStorage'
 import { useRouter } from 'next/router';
+import Spinner from 'react-bootstrap/Spinner'
+import Alert from 'react-bootstrap/Alert'
+import { signUp } from '../../api/auth/functions';
+
+
+
 
 const  Register = ({ setLocation, setPage })=>{
     let router = useRouter();
@@ -12,23 +18,46 @@ const  Register = ({ setLocation, setPage })=>{
         password: ''
     })
 
-    const submitRegisterDetails = (event) => {
-        event.preventDefault();
+    const [errorMsg, setErrorMsg] = useState("");
+    const [apiError, setApiError] = useState("");
+    const [loading, setLoading] = useState(false)
 
-        /**Remove thia after test running */
-        //do the registration and save user infor retuened from server to local storage
-        //using the bellow format
-        setUserInfo({
-            _id: 'userid',
-            u_name: fields.name,
-            u_email: fields.email,
-            adminLevel: 3, //this will be set by server based on site's preference
-          })
-          setPage("create")
-         // location = "/"
-         //router.push("/")
-        //send fields via api and await result which will be set to localStorage user
-        
+    const submitRegisterDetails = async(event) => {
+        event.preventDefault();
+        setErrorMsg("");
+        setApiError("");
+        const {email, name, password, cpassword} = fields
+        if (!email.trim().length) {
+            setErrorMsg("Enter email address")
+        } else if (!name.trim().length) {
+            setErrorMsg("Enter your fullname")
+        } else if (!password.trim().length && password.trim().length < 6) {
+            setErrorMsg("Password shoul be at least 6 characters")
+        } else if (!password === cpassword) {
+            setErrorMsg("Password do not match")
+        } else {
+            try{
+                setLoading(true)
+                const res = await signUp(email, password, name)
+                console.log(res.data)
+                setLocation("login")
+                /*
+                //LOGIN USING CLIENT SDK TO KEEP TRACK OF SESSION
+                const adminStatus = getSiteConfig().admins.filter((admin) => admin.email === email)
+                setUserInfo({
+                _id: res.data.uid,
+                u_name: res.data.displayName,
+                u_email: res.data.email,
+                adminLevel: adminStatus.length ? adminStatus[0].level : 0 //this will be set by server based on site's preference
+                })
+                setAppuser(getUserInfo())
+                */
+                setLoading(false)
+            }catch(error){
+                setApiError(error.response.data.message == 'auth/email-already-exists' ? 'Invalid operation login instead' : 'Error: invalid operation')
+                setLoading(false)
+            }
+        }
     }
 
     const handelChange = (event) =>{
@@ -36,7 +65,7 @@ const  Register = ({ setLocation, setPage })=>{
     }
 
     return (
-        <div className="section-1-container section-container">
+         <div className="section-1-container section-container">
             <div className="container">
                 <div className="row">
                     <div className="col section-1 section-description">
@@ -48,17 +77,27 @@ const  Register = ({ setLocation, setPage })=>{
                     <div className={styles.form}>
                         <div className="col-10 offset-1 col-lg-8 offset-lg-2 div-wrapper d-flex justify-content-center align-items-center">
                             <div className="div-to-align">
+                                { apiError && <Alert variant="danger"><center>{ apiError }</center></Alert> }
                                 <form onSubmit={submitRegisterDetails} id="auth-form">
                                     <input type="email" onChange={handelChange} name="email" className="form-control"  placeholder="Email Address" required />
                                     <p></p>
                                     <input type="text" onChange={handelChange} name="name" className="form-control"  placeholder="Fullname" required />
                                     <p></p>
-                                    <input type="password" onChange={handelChange} name="password" className="form-control"  placeholder="Password" required />
+                                    <input type="password" placeholder="Enter a strong password of at least 6 characters" onChange={handelChange} name="password" className="form-control"  required />
                                     <p></p>
-                                    <button type="submit"  style={{background: '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >Register</button>
+                                    <p></p>
+                                    <input type="password" placeholder="Confirm password" onChange={handelChange} name="cpassword" className="form-control"  required />
+                                    <p></p>
+                                    <center><p style={{color: "red"}}>{ errorMsg }</p></center>
+                                    <button type="submit"  style={{display: loading ? "none" : "block", background: '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                                        Register
+                                    </button>
+                                    <button style={{display: loading ? "block" : "none", background: '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                                       <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading...
+                                    </button>
                                     <p></p>
                                     <p className={styles.optionRegister}>
-                                        <span className="psw">Or <a onClick={()=>{setLocation("login")}} style={{color: '#8b045e'}} id="forgot-pass">Login</a></span>
+                                        <span className="psw">Or <a onClick={()=>{setLocation("login")}} style={{color:'#8b045e'}} id="forgot-pass">Login</a></span>
                                     </p>
                                 </form>
                             </div>
@@ -69,4 +108,5 @@ const  Register = ({ setLocation, setPage })=>{
         </div>
         )
 }
+
 export default Register;
