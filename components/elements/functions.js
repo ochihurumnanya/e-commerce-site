@@ -12,15 +12,15 @@
   let allCartName =  [];
 
   products.forEach((product)=>{
-  if (!allCartName.includes(product.category)){
+  if (!allCartName.includes(product.cat)){
     categories.push(
                   {
-                    category: product.category,
+                    category: product.cat,
                     imgurl: product.img
                   }
                 );
 
-    allCartName.push(product.category);
+    allCartName.push(product.cat);
   }
   });
   return categories

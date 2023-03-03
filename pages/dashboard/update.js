@@ -6,14 +6,13 @@ import Link from 'next/link'
 import { storage } from "../../utils/config/firebaseConfig"
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage"
 import { updateSite, getSiteconfig } from '../../api/site/functions';
-import { setSiteConfig } from '../../components/LocalStorage';
+import { setSiteConfig, getUserInfo } from '../../components/LocalStorage';
 import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
 
 
 const Update = () => {
-
-    const { siteConfig } = useContext(ProductsData);
+    const { siteConfig, appuser } = useContext(ProductsData);
     const [errorMsg, setErrorMsg] = useState();
     const [apiError, setApiError] = useState("");
     const [loading, setLoading] = useState(false)
@@ -102,6 +101,7 @@ const Update = () => {
                     getDownloadURL(uploadTask.snapshot.ref).then( async(downloadURL) => {
                       setNewConfig({...newConfig, logoImg: downloadURL})
                       let updatedConfig = {
+                        token: appuser.token,
                         logo: logo,
                         logoImg: downloadURL,
                         color: color,
@@ -123,12 +123,14 @@ const Update = () => {
                       const res = await getSiteconfig({logo:logo})
                       setSiteConfig(res.data)
                       location = "/"
-                      setLoading(false)
+                      //setLoading(false)
                     }) 
                   }) 
                 } else {
                   //call update api
                   let updatedConfig = {
+                    token: appuser.token,
+                    userName:"none",
                     logo: logo,
                     logoImg: logoImg,
                     color: color,
@@ -137,7 +139,6 @@ const Update = () => {
                     minProduct: minProduct,
                     about: about,
                     shopDsc: shopDsc,
-                    admins: siteConfig.admins, //all current admins
                     contact: {
                         address: address,
                         phone: phone,
@@ -145,6 +146,7 @@ const Update = () => {
                     }
                   }
                   //Creates site
+                  console.log(updatedConfig)
                   setLoading(true)
                   //update website
                   await updateSite(updatedConfig)
@@ -152,7 +154,7 @@ const Update = () => {
                   const res = await getSiteconfig({logo:logo})
                   setSiteConfig(res.data)
                   location = "/"
-                  setLoading(false)
+                  //setLoading(false)
                 }
           }catch(error){
                   setApiError('An error occurred while creating site check internet connection and try again')

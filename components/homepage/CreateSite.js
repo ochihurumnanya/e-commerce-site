@@ -8,23 +8,25 @@ import{ onAuthStateChanged } from 'firebase/auth';
 import { auth, storage } from "../../utils/config/firebaseConfig"
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { createSite, verifysitename } from '../../api/site/functions'
+import { getUserToken } from '../../api/auth/functions'
 
 
 const CreateSite = () => {
-  
+  const [ userToken, setUserToken] = useState("")
 
   useEffect(()=>{
-    const unsubscribe = onAuthStateChanged(auth, (currentuser) => {
-        if(currentuser) {
-          const adminStatus = getSiteConfig().admins.filter((admin) => admin.email === currentuser.email)
-          setUserInfo({
-            _id: currentuser.uid,
-            u_name: currentuser.displayName,
-            u_email: currentuser.email,
-            adminLevel: adminStatus.length ? adminStatus[0].level : 0 //this will be set by server based on site's preference
-          })
-        } 
-      })
+    const unsubscribe = onAuthStateChanged(auth, async(currentuser) => {
+      const token = await getUserToken();
+      //console.log(token)
+      setUserInfo({
+          _id: currentuser.uid,
+          u_name: currentuser.displayName,
+          u_email: currentuser.email,
+          token: token,
+          adminLevel: 3 //this will be set by server based on site's preference
+        })
+        setUserToken(token)
+  }) 
 
     return () => {
       unsubscribe();
@@ -124,7 +126,7 @@ useEffect(()=>{
                 setProgress(0)
 
                  //Check if site exists
-                const verifyRes = await verifysitename({logo:logo})
+                await verifysitename({logo:logo})
                 const storageRef = ref(storage, `public/${logo}/files/${file.name}`) //note public/storename/file.name
                 const uploadTask = uploadBytesResumable(storageRef, file)
                 
@@ -143,8 +145,7 @@ useEffect(()=>{
                     //make api call to create store
 
                     let updatedConfig = {
-                      uid: getUserInfo()._id,
-                      userEmail: getUserInfo().u_email,
+                      token: userToken,
                       userName: getUserInfo().u_name,
                       logo: logo,
                       code: code,
@@ -165,11 +166,11 @@ useEffect(()=>{
                     //Creates site
                       setLoading(true)
                       const res = await createSite(updatedConfig)
-                      //console.log(res.data)
+                      console.log(res.data)
                       setSiteConfig(res.data)
                       //router.push("/")
                       location = "/"
-                      setLoading(false)
+                      //setLoading(false)
                 })
               })
             } else{

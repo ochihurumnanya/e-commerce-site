@@ -5,10 +5,12 @@ import HomeAuth from "./homepage/HomeAuth";
 import HomePage from "./homepage/HomePage";
 import {getSiteconfig} from "../api/site/functions" //api call
 import { setSiteConfig } from '../components/LocalStorage'
+import { useRouter } from 'next/router';
 
 
 
 const InvalidRequest = () => {
+    let router = useRouter();
     const [page, setPage] = useState("loading")
 
    
@@ -17,10 +19,12 @@ const InvalidRequest = () => {
             try{
                 let url = document.URL.split('/')
                 const site = url[url.length-1]
+                //alert(site)
                 const res = await getSiteconfig({logo:site})
                 setSiteConfig(res.data)
                 console.log(res.data)
-                location = "/"
+                //location = "/"
+                router.push('/')
                 //get site cofig and products from site
                 //if succeds set setSiteConfig
                 //and navigate back to home page /
@@ -28,6 +32,7 @@ const InvalidRequest = () => {
                 //load site creation home page
             }catch(error){
                 setPage("home")
+                console.log(error)
             }
         }
     

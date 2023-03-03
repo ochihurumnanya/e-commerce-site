@@ -16,7 +16,7 @@ const SalesItem = ({ sale, amount, salse, setSale, deleteSale, setModalShow }) =
     return (
         <tr>
             <td>{sale.staff}</td>
-            <td>{formatPrice(amount)}</td>
+            <td>{ amount }</td>
             <td>{sale.date}</td>
             <td><button onClick={() => {showSale(sale)}}  className="btn-edit">Details</button></td>
             <td><button onClick={() => {deleteSale(sale.id)}} className="btn-delete">Delete</button></td>

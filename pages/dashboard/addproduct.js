@@ -5,36 +5,44 @@ import { useState, useEffect } from 'react';
 import { Hint } from 'react-autocomplete-hint'
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
-import { getSiteConfig } from '../../components/LocalStorage';
+import { getSiteConfig, getUserInfo } from '../../components/LocalStorage';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import{ onAuthStateChanged } from 'firebase/auth';
-import { auth, storage } from "../../utils/config/firebaseConfig"
+import { storage } from "../../utils/config/firebaseConfig"
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
 import { addNewProduct } from '../../api/product/functions';
+import { bytesToMegaBytes } from './elements/products/functions';
+
+
+
+
+
 
 const AddProduct = () => {
   let router = useRouter();
-  const { formatPrice, siteConfig, setAllproducts, allProducts } = useContext(ProductsData);
+  const { formatPrice, siteConfig, setAllproducts, allProducts, appuser } = useContext(ProductsData);
 
+    //product search hint data
     const [hintData, setHintData] = useState(["laptop"])
+
     const[fields, setFields] = useState({
-      name: '',
-      price: '',
-      qty: '',
-      cat: '',
-      dsc: '',
-      img: '',
-      size: ''
-  })
+        name: '',
+        filename: '',
+        price: '',
+        qty: '',
+        cat: '',
+        dsc: '',
+        img: '',
+        size: ''
+    })
 
   const [siteColor, setSiteColor] = useState('orange')
 
   const [formatedPrice, setFormatedPrice] = useState('')
 
-  const [errorMsg, setErrorMsg] = useState();
+  const [errorMsg, setErrorMsg] = useState("");
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState("")
@@ -56,19 +64,9 @@ const AddProduct = () => {
     }
   }
 
-  const bytesToMegaBytes = (bytes) => {
-    return (bytes / (1024 * 1024)).toFixed(2)
-  }
+  
 
-  /*
-      name: '',
-      price: '',
-      qty: '',
-      cat: '',
-      dsc: '',
-      img: '',
-      size: ''
-  */
+
   const addProduct = async (event) => {
       event.preventDefault();
       const { name, price, qty, cat, dsc, img, size } = fields;
@@ -87,14 +85,13 @@ const AddProduct = () => {
         try{
           let file = document.getElementById("product-img")?.files[0]
           let sizeInMb = bytesToMegaBytes(document.getElementById("product-img")?.files[0].size)
-
+          
           if(file) {
             //check used mb
-            if (getSiteConfig().usedPlan+sizeInMb <= getSiteConfig().plan){
+            if (Number(getSiteConfig().usedPlan)+Number(sizeInMb) <= getSiteConfig().plan){
               setErrorMsg("")
               setLoading(true)
               setProgress(0)
-              alert(siteConfig.logo)
 
               const storageRef = ref(storage, `public/${siteConfig.logo}/files/${file.name}`) //note public/storename/file.name
                   const uploadTask = uploadBytesResumable(storageRef, file)
@@ -105,6 +102,7 @@ const AddProduct = () => {
                       },
                       (error) => {
                         setErrorMsg("An unknown error occurred check internet connectivity and try again")
+                        setApiError("An unknown error occurred check internet connectivity and try again")
                         setLoading(flase)
                         setProgress(0)
                       }, 
@@ -112,15 +110,17 @@ const AddProduct = () => {
                         getDownloadURL(uploadTask.snapshot.ref).then( async(downloadURL) => {
                           //fields, 
                           setFields({...fields, size: sizeInMb, img: downloadURL})
-                          //const { name, price, qty, cat, dsc, img, size } = fields;
                           const newProduct = {
                                   name: name,
+                                  id: "",
+                                  token: appuser.token,
                                   logo: siteConfig.logo,
                                   price: Number(price),
                                   qty: Number(qty),
                                   cat: cat,
                                   dsc: dsc,
                                   img: downloadURL,
+                                  filename: file.name,
                                   size: Number(sizeInMb)
                           }
 
@@ -129,8 +129,7 @@ const AddProduct = () => {
                           //add product to global all prosucts
                           const res = await addNewProduct(newProduct) 
                           setAllproducts([...allProducts, res.data])
-                          //router.push("/")
-                          location = "/dashboard/products"
+                          router.push("/dashboard/products")
                           setLoading(false)
 
                         })
@@ -146,6 +145,8 @@ const AddProduct = () => {
           
         }catch(error){
           console.log(error)
+          setErrorMsg("An unknown error occurred check internet connectivity and try again")
+          setApiError("An unknown error occurred check internet connectivity and try again")
         }    
       }
   }
@@ -157,10 +158,10 @@ const AddProduct = () => {
         <>
           <div style={{paddingBottom: "100px"}} className="container">
             <div style={{width: "100%"}} >
-                <form onSubmit={addProduct} id="shipping-form" action="">
+                <form onSubmit={addProduct} action="">
                       <center><h6>PRODUCT INFORMATION</h6></center>
                       { apiError && <Alert variant="danger"><center>{ apiError }</center></Alert> }
-                      <div style={{background: "#dedede", padding: "20px"}}>
+                      <div style={{background: "#dedede", padding: "20px", borderRadius: "12px"}}>
                           <div className="txt">
                           Enter product name/brand
                           <input className="form-control" onChange={handelChange} value={fields.name} name="name"  type="text" placeholder="product name" required />
@@ -192,10 +193,10 @@ const AddProduct = () => {
                           <center><p style={{color: "red"}}>{ errorMsg }</p></center>
                         </div>
                       <div className="txt">
-                        <button type="submit"  style={{display: loading ? "none" : "block", background: '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                        <button type="submit"  style={{display: loading ? "none" : "block", background: siteConfig.color, color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
                             Save Record
                         </button>
-                        <button style={{display: loading ? "block" : "none", background: '#8b045e', color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
+                        <button style={{display: loading ? "block" : "none", background: siteConfig.color, color: "white", width: "100%"}} className="btn btn-block" id="btnAcc" >
                             <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading... {progress}%
                         </button>
                       </div>

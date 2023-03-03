@@ -40,80 +40,15 @@ const  Register = ({ setLocation, siteConfig, setAppuser})=>{
         } else {
             try{
                 setLoading(true)
-                const res = await signIn(email, password, name)
-                console.log(res.data)
-                /*
-                //LOGIN USING CLIENT SDK TO KEEP TRACK OF SESSION
-                const adminStatus = getSiteConfig().admins.filter((admin) => admin.email === email)
-                setUserInfo({
-                _id: res.data.uid,
-                u_name: res.data.displayName,
-                u_email: res.data.email,
-                adminLevel: adminStatus.length ? adminStatus[0].level : 0 //this will be set by server based on site's preference
-                })
-                setAppuser(getUserInfo())
-                */
-                router.push("/auth")
-                setLoading(false)
+                const res = await signUp(email, password, name)
+                //console.log(res.data)
+                location = "/auth"
+                //setLoading(false)
             }catch(error){
                 setApiError(error.response.data.message == 'auth/email-already-exists' ? 'Invalid operation login instead' : 'Error: invalid operation')
                 setLoading(false)
-
             }
-        }
-        
-        /*
-UserRecord {
-  uid: 'aWW61FycstOsLMI9M1Tbzyegmxo2',
-  email: 'vvcahattapp@gmail.com',
-  emailVerified: false,
-  displayName: 'miracle okonkwo',
-  photoURL: undefined,
-  phoneNumber: undefined,
-  disabled: false,
-  metadata: UserMetadata {
-    creationTime: 'Mon, 30 Jan 2023 23:51:15 GMT',
-    lastSignInTime: null,
-    lastRefreshTime: null
-  },
-  providerData: [
-    UserInfo {
-      uid: 'vvcahattapp@gmail.com',
-      displayName: 'miracle okonkwo',
-  passwordSalt: undefined,
-  tokensValidAfterTime: 'Mon, 30 Jan 2023 23:51:15 GMT',
-  tenantId: undefined
-}
-
-
-//error
-errorInfo: {
-    code: 'auth/email-already-exists',
-    message: 'The email address is already in use by another account.'
-  },
-  codePrefix: 'auth'
-}
-
-
-        */
-
-        /**Remove thia after test running */
-        /*
-        //do the registration and save user infor retuened from server to local storage
-        //using the bellow format
-        setUserInfo({
-            _id: 'userid',
-            u_name: fields.name,
-            u_email: fields.email,
-            adminLevel: 3, //this will be set by server based on site's preference
-          })
-
-          if (setAppuser) setAppuser(getUserInfo())
-         // location = "/"
-         router.push("/")
-         */
-        //send fields via api and await result which will be set to localStorage user
-        
+        }  
     }
 
     const handelChange = (event) =>{

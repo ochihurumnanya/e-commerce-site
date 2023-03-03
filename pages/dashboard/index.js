@@ -5,6 +5,7 @@ import OderDetails from './elements/oders/OderDetails'
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
 import Link from 'next/link';
+import { getOders } from '../../api/oder/functions';
 
 
 
@@ -14,6 +15,7 @@ import Link from 'next/link';
   ///fill this with products from database. 
 /* All available product */
 //Oders object load all users oders and push to this object
+/*
 let allOders = [
   {
     id: "12356",
@@ -74,15 +76,30 @@ let allOders = [
       ],
     }
 ]
-
+*/
 
 const Home = () =>{
-  const { allProducts, setAllproducts, siteConfig, formatPrice } = useContext(ProductsData);
+  const { appuser, siteConfig, formatPrice } = useContext(ProductsData);
  
-  const [oders, setOders] = useState(allOders)
+  const [oders, setOders] = useState([])
   const [oder, setOder] = useState({})
+  const [apiError, setApiError] = useState("");
   const [modalShow, setModalShow] = useState(false)
   
+
+  useEffect(()=>{
+    const getOder = async() => {
+        try{
+            //token, logo, admin(true/false)
+            const res = await getOders({token: appuser.token, logo: siteConfig.logo, admin: true})
+            setOders(res.data.oders)
+        } catch(error) {
+            setApiError("An error occured check internet connectivity")
+            console.log(error)
+        }
+    }
+    getOder();
+}, [])
 
 
   const getTotalSale = () => {
@@ -147,6 +164,7 @@ const printReciept = (oder) => {
           <h2 className="mx-auto mt-4 mb-5" style={{width:"300px"}}>
             Daily Oder(s)
           </h2>
+          { apiError && <Alert variant="danger"><center>{ apiError }</center></Alert> }
           <center>
             <table style={{width: "100%", paddingBottom: "30px"}}>
                 <tbody>

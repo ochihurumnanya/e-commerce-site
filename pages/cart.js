@@ -16,7 +16,7 @@ const cart = () => {
   const { btnValue, setBtnValue, formatPrice } = useContext(ProductsData);
   let siteConfig=getSiteConfig();
   const [cartItemsState, setCartItemsState] = useState([])
-  const [modalShow, setModalShow] = useState(false)
+  const [salseModalShow, setSalseModalShow] = useState(false)
 
 
   useEffect(()=>{
@@ -45,14 +45,10 @@ const cart = () => {
   */
   const proceedToCheckout = () => {
      if ([1,2,3].includes(getUserInfo().adminLevel)){
-        setModalShow(true)
+        setSalseModalShow(true)
      }else{
         router.push('/checkout')
      }
-      
-     
-    
-    
   }
   
   let displayCarts = cartItemsState ? 
@@ -81,32 +77,41 @@ const cart = () => {
             <center>
               <table style={{width: "100%", height:"100%"}} id="cart-list">
                 <tbody>
-              <tr>
-              <th>image</th>
-              <th>Product</th>
-              <th>Price</th>
-              <th>Qty</th>
-              <th></th>
-              </tr>
-                {
-                  displayCarts
-                }
+                    <tr>
+                    <th>image</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th></th>
+                    </tr>
+                      {
+                        displayCarts
+                      }
+                      <tr>
+                        <td>
+                          <p>
+                            <b>Total:</b> <span>{ formatPrice( cartItemsState.reduce((a, c) => a + c.price * c.qty, 0) ) }</span>
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                          <button className="btn" id="btn-proceed" onClick={()=> proceedToCheckout()} style={{alignSelf:"right", border: "none", margin: '10px', background: siteConfig.color, color: 'white'}}>
+                            Proceed
+                          </button>
+                        </td>
+                      </tr>
                 </tbody>
               </table>
             </center>
-            <div style={{margin: '10px', width: "100%"}}>
-              <p>
-                <b>Total:</b> <span>{ formatPrice( cartItemsState.reduce((a, c) => a + c.price * c.qty, 0) ) }</span>
-              </p>
-                <button id="btn-proceed" onClick={()=> proceedToCheckout()} style={{border: "none", margin: '10px', background: siteConfig.color, color: 'white'}}>
-                    Proceed
-                </button>
-              
-            </div>
         </div>
         <SalseForm 
-             show={modalShow} 
-             onHide={() => setModalShow(false)}
+             show={salseModalShow} 
+             onHide={() => setSalseModalShow(false)}
              cart={getCartItems()}
         />
       </div>

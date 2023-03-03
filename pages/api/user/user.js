@@ -1,7 +1,7 @@
 //end point
 //pages/api/user  (to create new user)
 //import { db, auth } from "../../../utils/db";
-import { db, auth } from "../../utils/db";
+import { auth } from "../../../utils/db";
 
 export default function handler(req, res){
     const { name, email, password } = req.body;

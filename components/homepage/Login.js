@@ -1,8 +1,9 @@
 import styles from '../../styles/auth.module.css'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
-import { logIn } from '../../api/auth/functions'
+import {  logIn } from '../../api/auth/functions'
+
 
 
 const  Login = ({ setLocation, setPage})=>{
@@ -34,11 +35,13 @@ const  Login = ({ setLocation, setPage})=>{
                 setLoading(true)
                 //const res = await logIn(email, password)
                 await logIn(email, password)
+                
                 setPage("create")
                 setLoading(false)
             }catch(error){
                 setApiError("Invalid credentials")
                 setLoading(false)
+                console.log(error)
             }
            
         }

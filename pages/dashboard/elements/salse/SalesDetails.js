@@ -39,7 +39,7 @@ import { useContext } from 'react';
                                           <th>Qty</th>
                                       </tr>
                                       {
-                                      props.sale.products ? props.sale.products.map(
+                                        props.sale.products ? props.sale.products.map(
                                           (item, index) => 
                                               <tr key={"i"+index}>
                                                   <td><img className="cat-img" src={item.img} /></td>
@@ -47,13 +47,25 @@ import { useContext } from 'react';
                                                   <td>{formatPrice(item.price)}</td>
                                                   <td>{item.qty}</td>
                                               </tr>
-                                          ) : ""
+                                        ) : ""
                                       }
                                   </tbody>
                               </table>
                               <p>
-                                <b>Total:</b> <span>{props.sale.products ? formatPrice(props.sale.products.reduce((a, c) => a + c.price * c.qty, 0)) : ""}</span>
+                                <b>Total Amount:</b> <span>{props.sale.products ? formatPrice(props.sale.products.reduce((a, c) => a + c.price * c.qty, 0)) : ""}</span>
                               </p>
+                              <p>
+                                <span className="me-5">Discount:</span>{ formatPrice(props.sale.discount) }
+                              </p>
+                              <div className="row">
+                                     <div className="col-xl-8" style={{marginLeft: "60px"}}>
+                                      <p className="float-end"
+                                         style={{fontSize: "30px", color: "red", fontWeight: "400", fontFmily: "Arial, Helvetica, sans-serif"}}>
+                                         Total:
+                                         <span>{ props.sale.products ? formatPrice(props.sale.products.reduce((a, c) => a + c.price * c.qty, 0) - props.sale.discount) : ""}</span>
+                                      </p>
+                                     </div>
+                                 </div>
                           </div>
                       </div>
                       }

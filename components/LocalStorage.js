@@ -45,8 +45,11 @@ const clearItemCheck = (key) => {
   export const clearUser = () => {
     clearItemCheck('userInfo')
   };
-  
-  
+
+  //to clear all storage
+  export const clearStorage = (key) => {
+    clearItemCheck(key)
+  };
   
   
   
@@ -54,10 +57,10 @@ const clearItemCheck = (key) => {
    * getCartItems - function that returns user's cart items
    */
   export const getCartItems = () => {
-   const cartItems = getItemCheck('cartItems')
-     ? JSON.parse(getItemCheck('cartItems'))
-     : [];
-   return cartItems;
+    const cartItems = getItemCheck('cartItems')
+      ? JSON.parse(getItemCheck('cartItems'))
+      : [];
+    return cartItems;
   };
 
    /*
@@ -77,8 +80,6 @@ const clearItemCheck = (key) => {
     setItemCheck('salsereceipt', JSON.stringify(salse))
    };
   
-  //salseReceipt
-   
    /*
     * setCartItems - function that set customer's cart items
     */
@@ -100,9 +101,6 @@ const clearItemCheck = (key) => {
     return getItemCheck('location')
     };
    
-   
-
-  
   
   /*
   * setSiteConfig - set site config

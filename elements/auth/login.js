@@ -33,8 +33,8 @@ const  Login = ({ setLocation, siteConfig})=>{
                 setLoading(true)
                 //const res = await logIn(email, password)
                 await logIn(email, password)
-                router.push("/")
-                setLoading(false)
+                location = "/"
+                //setLoading(false)
             }catch(error){
                 setApiError("Invalid credentials")
                 setLoading(false)

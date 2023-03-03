@@ -8,7 +8,7 @@ const URL = "http://localhost:3000/"
  * @returns 
  */
 export const createSite = (data) => {
-    return  axios.post(`${URL}api/site`, data)
+    return  axios.post(`${URL}api/site/site`, data)
   }
 
   /**
@@ -17,7 +17,7 @@ export const createSite = (data) => {
  * @returns 
  */
 export const updateSite = (data) => {
-  return  axios.put(`${URL}api/site`, data)
+  return  axios.put(`${URL}api/site/site`, data)
 }
  
   /**
@@ -26,9 +26,9 @@ export const updateSite = (data) => {
    * @returns 
    */
   export const verifysitename = (data) => {
-    return  axios.post(`${URL}api/verifysitename`, data)
+    return  axios.post(`${URL}api/site/verifysitename`, data)
   }
 
   export const getSiteconfig = (data) => {
-    return  axios.post(`${URL}api/getsiteconfig`, data)
+    return  axios.post(`${URL}api/site/getsiteconfig`, data)
   }

@@ -6,6 +6,8 @@ import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { addNewSale } from '../../api/sale/functions';
+import Spinner from 'react-bootstrap/Spinner'
 
 /**
  * 
@@ -44,47 +46,43 @@ import Link from 'next/link';
  const SalseForm = (props) => {
   
   let router = useRouter();
-  const { siteConfig, formatPrice } = useContext(ProductsData)
+  const { siteConfig, formatPrice, appuser } = useContext(ProductsData)
   
   const[fields, setFields] = useState({
-    discount: 0,
-    name: "",
-  })
-
-  const[salse, setSalse] = useState({
-      address: "",
-      status: "pending",
-      date: "",
-      contact: "",
-      customer: "", //customers name
-      staff: "",
-      products:[]
+        discount: 0,
+        name: "",
   })
   
   const [formatedPrice, setFormatedPrice] = useState(0)
-  
-  const [isSubscribed, setIsSubscribed] = useState(siteConfig.subscription)
 
-  const handlePayment = (products) =>{
-    //update oder pyment status to paid and subtract all relevent product quntity on server side
-    //update date, staff, and status fields
-     //Update this functionto accomodate discount
-        // and oder this time will be new oder gotten from server
+  const [errorMsg, setErrorMsg] = useState()
+  const [loading, setLoading] = useState(false)
+
+  const handlePayment = async(products) =>{
         if ( fields.name.trim() != "" ){
-            let newSalse = salse;
-            newSalse.status = "paid" // set by server to paid rout (note remove latter)
-            newSalse.discount = fields.discount
-            newSalse.customer = fields.name
-            newSalse.date = "date/time 2"
-            newSalse.products = products
-            // send newSalse to server for it to be validated and saved
-            setSalse(newSalse)
-            //set salse receipt to local storage
-            setSalseReceipt(newSalse)
-            cleanCart();
-            router.push('/dashboard/reciept')
+                try {
+                  setLoading(true)
+                  setErrorMsg("")
+                  const res = await addNewSale({
+                      token: appuser.token, 
+                      address: "Purchased from store", 
+                      customer: fields.name,
+                      contact: siteConfig.contact.email, //set store owners email
+                      logo: siteConfig.logo,
+                      discount: fields.discount,
+                      oderId: "",
+                      products: products
+                  })
+                  setSalseReceipt({...res.data, products: JSON.parse(res.data.products)})
+                  cleanCart()
+                  router.push('/dashboard/reciept')
+            } catch (error) {
+                  console.log(error)
+                  setLoading(false)
+                  setErrorMsg("An unknown error occurred check internet connectivity and try again")
+            }
         }
-    
+
   }
 
   const handelChange = (event) =>{
@@ -141,6 +139,9 @@ import Link from 'next/link';
                               <p>
                                 <b>Amount:</b> <span>{props.cart ? formatPrice(props.cart.reduce((a, c) => a + c.price * c.qty, 0))  : ""}</span>
                               </p>
+                              <div className="txt">
+                                  <center><p style={{color: "red"}}>{ errorMsg }</p></center>
+                              </div>
                           </div>
                       </div>
                       
@@ -152,8 +153,12 @@ import Link from 'next/link';
                   </div>
         </Modal.Body>
         <Modal.Footer>
-          <button className="btn" style={{background: "#FF5733", marginRight: "20px", color: "white"}} onClick={props.onHide}>Close</button>
-          <button className="btn" style={{background: siteConfig.color, marginRight: "20px", color: "white"}} onClick={()=>handlePayment(props.cart)}>Paid</button>
+          <button className="btn" style={{display: loading ? "none" : "block", background: siteConfig.color, marginRight: "20px", color: "white"}} onClick={()=>handlePayment(props.cart)}>
+              Paid
+          </button>
+          <button className="btn" style={{display: loading ? "block" : "none", background: siteConfig.color, marginRight: "20px", color: "white"}} >
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> processing... 
+          </button>
         </Modal.Footer>
       </Modal>
       ) 

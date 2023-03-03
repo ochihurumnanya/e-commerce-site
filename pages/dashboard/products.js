@@ -7,6 +7,9 @@ import { useContext } from 'react';
 import ProductSearch from "./elements/products/ProductSearch";
 import ReactPaginate from "react-paginate";
 import Link from 'next/link';
+import { createSlides } from "./elements/products/functions";
+import { deleteProduct } from "../../api/product/functions";
+import DeleteProductModal from "./elements/products/DeleteDialogModal";
 
 
 
@@ -25,9 +28,11 @@ const Products = () => {
        setPage(selected)
    }
 
-   const [siteColor, setSiteColor] = useState('orange')
-
+   //set edit modal show
    const [modalShow, setModalShow] = useState(false)
+
+   //set delete modal show
+   const [delModalShow, setDelModalShow] = useState(false)
 
    const [editProduct, setEditProduct] = useState({})
 
@@ -43,30 +48,9 @@ const Products = () => {
 
   //available product qty
   const [availableQty, setAvailableQty] = useState(0);
-  /*
-  * createSlides - Create slides based on available categories
-  * Returns: An object containing Arrays of sorted images and 
-  * categories based on available categories
-  */
- const createSlides = (products) => {
-  let catImg = [];
-  let categories = [];
-  let allCartName =  [];
 
-  products.forEach((product)=>{
-  if (!allCartName.includes(product.category)){
-    categories.push(
-                  {
-                    category: product.category,
-                    imgurl: product.img
-                  }
-                );
 
-    allCartName.push(product.category);
-  }
-  });
-  return categories
-}
+
 
    
   
@@ -80,14 +64,17 @@ const Products = () => {
  
 
   const[fields, setFields] = useState({
-    id: '',
-    name: '',
-    price: '',
-    qty: '',
-    cat: '',
-    dsc: '',
-    img: '',
-    search:''
+      id: '',
+      name: '',
+      price: '',
+      qty: '',
+      cat: '',
+      dsc: '',
+      size: 0,
+      logo: '',
+      img: '',
+      filename: '',
+      search:''
  })
  
 
@@ -127,13 +114,23 @@ const handelChange = (event) =>{
 }
 
 
-
-  const deleteProduct = (id) => {
-    let newProduct = pageProducts.filter((product) => product.id !== id)
-    //delete product with id from database
-    setPageProducts(newProduct)
-    //setAllproducts
+  //pid product id
+  const deleteProduct = (pid) => {
+    let delProduct = {...allProducts.filter((item) => item.id === pid)[0], logo: siteConfig.logo}
+    setFields(delProduct)
+    console.log(delProduct)
+    setDelModalShow(true)
   }
+
+    //removes product from ui
+    const removeProduct = (pid) => {
+      const updatedProduct = pageProducts.filter((item) => item.id !== pid)
+      //for all products
+      setAllproducts(updatedProduct)
+      //for pagination
+      setPageProducts(updatedProduct)
+      //hide modal
+    }
 
   const searchProduct = () => {
     let newProduct = pageProducts.filter((product) => product.name === fields.search)
@@ -141,35 +138,23 @@ const handelChange = (event) =>{
     newProduct.length !== 0 ? sellectEditProduct(newProduct[0]) : alert("product not found")
     //setAllproducts
   }
-
-  const updateProduct = () => {
-  
-    
-    let newProductFields = {
-         id: fields.id,
-         name: fields.name,
-         price: fields.price,
-         dsc: fields.dsc,
-         cat: fields.cat,
-         qty:totalQty,
-         img: fields.img,
-  }
-
-  //update product with product id newProductFields to db befor proceeding 
+ /**
+  * 
+  * @param { Contains the newly updated product } newProduct 
+  */
+  const updatePageProduct = (newProduct) => {
      
       let updatedProducts = pageProducts.map((product) => {
-        if (product.id ===  newProductFields.id) {
-          //alert("ok")
-          return newProductFields
+        if (product.id ===  newProduct.id) {
+          return newProduct
         }else{
-          //alert("no")
           return  product
         }
       })
   
       setPageProducts(updatedProducts)
+      setAllproducts(updatedProducts)
       setModalShow(false)
-    
     }
     
   
@@ -178,18 +163,22 @@ const handelChange = (event) =>{
 
  //sellected product to be edited
  const sellectEditProduct = (product) => {
+  //let nproduct = {...allProducts.filter((item) => item.id === product.id)[0], logo: siteConfig.logo}
+  
   let nproduct = {
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    qty: product.qty,
-    cat: product.category,
-    dsc: product.dsc,
-    img: product.img
-
+      id: product.id,
+      logo: siteConfig.logo,
+      name: product.name,
+      price: product.price,
+      qty: product.qty,
+      cat: product.cat,
+      dsc: product.dsc,
+      img: product.img,
+      filename: product.filename,
+      size: product.size
   }
-  setTotalQty(product.qty)
-  setAvailableQty(product.qty)
+  setTotalQty(nproduct.qty)
+  setAvailableQty(nproduct.qty)
   setFields(nproduct)
   setModalShow(true)
 }
@@ -205,12 +194,12 @@ const handelChange = (event) =>{
                                       if (product.qty > siteConfig.minProduct){
                                         return(
                                           <Product
-                                          key={product.id}
-                                          product={product} 
-                                          deleteProduct={deleteProduct}  
-                                          setProducts={setPageProducts}
-                                          sellectEditProduct={sellectEditProduct}
-                                          low={false}
+                                            key={product.id}
+                                            product={product} 
+                                            deleteProduct={deleteProduct}  
+                                            setProducts={setPageProducts}
+                                            sellectEditProduct={sellectEditProduct}
+                                            low={false}
                                         />
                                         )
                                       }
@@ -278,20 +267,30 @@ const handelChange = (event) =>{
                   <EditProductModal
                       show={modalShow} 
                       onHide={() => setModalShow(false)}
-                      updateProduct={updateProduct}
+                      updatePageProduct={updatePageProduct}
                       handelChange={handelChange}
                       formatedPrice={formatedPrice}
                       fields={fields}
+                      setFields={setFields}
                       hintData={hintData}
                       totalQty={totalQty}
                   />
+                  <DeleteProductModal
+                     show={delModalShow} 
+                     onHide={() => setDelModalShow(false)}
+                     setPageProducts={setPageProducts}
+                     fields={fields}
+                     setFields={setFields}
+                     removeProduct={removeProduct}
+                  />
+                  
                   </div>
         )
-    }else{
+    } else {
       return (
         <div className="container" style={{paddingBottom: "100px", paddingTop: "50px"}}>
           <center>
-            <h3>your annual subscription has expired and you don't have enough credit for automatic renewal. kindly <Link href="/dashboard/credit">click here to subscibe</Link></h3>
+            <h3>your annual subscription has expired and you don't have enough bonus for automatic renewal. kindly <Link href="/dashboard/credit">click here to subscibe</Link></h3>
           </center>
         </div>
       )

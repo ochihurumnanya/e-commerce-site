@@ -66,13 +66,6 @@ const removeItem = (id)=>{
         setQtyValue(obj)
     }, [])
     
-    /*
-        useEffect(()=>{
-            let obj = {...qtyValue}
-            obj[item.id] = item.qty
-            setQtyValue(obj)
-        }, [])
-    */
     
    return (
     <tr>

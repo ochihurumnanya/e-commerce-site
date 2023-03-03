@@ -1,8 +1,5 @@
 import  Slides  from "../elements/home/Slides";
 import  Products  from "../elements/home/Products";
-//setSiteConfiq  will be called on dynamic rout [].js
-import { getSiteConfig, setSiteConfig } from "../components/LocalStorage"
-import { useEffect, useState } from "react";
 //import SellectCart from "../components/SellectCart";
 import { ProductsData } from '../context/context';
 import { useContext } from 'react';
@@ -11,22 +8,8 @@ import { useContext } from 'react';
 
 const Home = () => {
     //using global context
-    const {allProducts, setAllproducts, siteConfig, setUserCurencyCodeAndLocal} = useContext(ProductsData);
+    const {allProducts, siteConfig} = useContext(ProductsData);
     
-    //useEffect(()=>{
-      //setUserCurencyCodeAndLocal(siteConfig.currency)
-    //}, [])
-    
-   /*
-    useEffect(()=>{
-      setSiteConfig(siteConfigs)
-    }, [])
-    */
-   
-
-    
-    
-     //const products = allProducts || [];
      if (allProducts.length){
         return (
           <>

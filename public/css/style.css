@@ -1285,10 +1285,12 @@ td {
  
  .cart-details{
   background: #ddd; padding: 10px; width:80%;
+  border-radius: 13px;
  }
 
  .order-details{
   background: #ddd; padding: 10px; width:100%;
+  border-radius: 13px;
  }
 
  @media only screen and (max-width: 768px) {

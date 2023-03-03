@@ -1,7 +1,7 @@
 //end point
 //pages/api/user  (to create new user)
 //import { db, auth } from "../../../utils/db";
-import { db } from "../../utils/db";
+import { db } from "../../../utils/db";
 
 export default async (req, res) => {
 

@@ -1,6 +1,12 @@
 
-import { getUserInfo, getShipping, setShipping, getSiteConfig, cleanCart } from '../components/LocalStorage.js'
+import { getUserInfo, getShipping, setShipping, cleanCart, getCartItems, clearStorage } from '../components/LocalStorage.js'
 import { useState, useEffect } from 'react'
+import { useContext } from 'react';
+import { makeNewOder } from '../api/oder/functions.js';
+import { useRouter } from 'next/router';
+import Spinner from 'react-bootstrap/Spinner'
+import Alert from 'react-bootstrap/Alert'
+import { ProductsData } from '../context/context';
 
 //complete order object
 /*
@@ -64,6 +70,12 @@ import { useState, useEffect } from 'react'
     }
 */
 const Checkout = () => {
+    let router = useRouter();
+    const { appuser, siteConfig } = useContext(ProductsData);
+
+    const [apiError, setApiError] = useState("");
+    const [loading, setLoading] = useState(false)
+
     const[fields, setFields] = useState({
       name: '',
       email: '',
@@ -71,35 +83,53 @@ const Checkout = () => {
       address: ''
     })
 
-    let siteConfig=getSiteConfig();
-  
-    useEffect(()=>{
-      siteConfig = getSiteConfig()
-    }, [])
-    
+   
     const handelChange = (event) =>{
         setFields({ ...fields, [event.target.name]: event.target.value });
     }
 
-    const submitShipping = (event) => {
-        event.preventDefault();
-        setShipping(fields)
-        //Note save cart items and shipping to database before prodeding to line 20
-        //using the above object model
-        cleanCart('shipping');
-        cleanCart('cartItems');
-        location = "/oder"
-       
-    }
     useEffect(()=>{
-        const { u_name, u_email } = getUserInfo();
-        const { email, phone, address } = getShipping();
-        setFields({...fields, name:u_name || '', email:email || u_email || '', phone:phone || '', address:address || ''})
+      const { u_name, u_email } = getUserInfo();
+      const { email, phone, address } = getShipping();
+      setFields({...fields, name:u_name || '', email:email || u_email || '', phone:phone || '', address:address || ''})
     }, [])
+
+
+    const submitShipping = async (event) => {
+        event.preventDefault();
+        try{
+          setShipping(fields)
+
+          setApiError("")
+          setLoading(true)
+          const cart = getCartItems()
+          const oder = {
+              token: appuser.token,
+              logo: siteConfig.logo,
+              address: fields.address,
+              contact: fields.email+", "+fields.phone,
+              customer: fields.name, //customers name
+              products: cart
+          }
+          
+          const res = await makeNewOder(oder)
+          //Note save cart items and shipping to database before prodeding to line 20
+          //using the above object model
+          clearStorage('shipping')
+          cleanCart('cartItems')
+          router.push("/oder")
+        } catch(error) {
+          console.log(error)
+          setLoading(false)
+          setApiError("An unknown error occurred check internet connectivity and try again")
+        }
+    }
+
     return (
-        <div className="container">
+        <div style={{paddingTop:"15px", paddingBottom:"15px"}} className="container">
         <form onSubmit={submitShipping} id="shipping-form" action="">
           <div className="cart-details">
+          { apiError && <Alert variant="danger"><center>{ apiError }</center></Alert> }
            <h6>CONTACT INFORMATION</h6>
             <p style={{fontSize: "12px"}}>
               The phone number field is very important. As you're not required to make payments
@@ -121,9 +151,14 @@ const Checkout = () => {
             <h6>SHIPPING ADDRESS</h6>
                <textarea onChange={handelChange} name="address" className="form-control" value={fields.address}></textarea>
            </div>
-           <button type="submit" className="btn" style={{margin: '10px',  background: siteConfig.color, color: 'white'}}>
-             Complete Oder
-           </button>
+            <div className="txt">
+              <button type="submit"  style={{display: loading ? "none" : "block", background: siteConfig.color, color: "white" }} className="btn btn-block" id="btnAcc" >
+                  Complete Oder
+              </button>
+              <button style={{display: loading ? "block" : "none", background: siteConfig.color, color: "white" }} className="btn btn-block" id="btnAcc" >
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading...
+              </button>
+            </div>
        </form>
       </div>
     )

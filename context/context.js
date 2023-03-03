@@ -9,6 +9,7 @@ import Spinner from 'react-bootstrap/Spinner'
 import{ onAuthStateChanged } from 'firebase/auth';
 import { auth } from "../utils/config/firebaseConfig"
 import { getAdminLevel } from '../api/auth/functions';
+import { getProducts } from '../api/product/functions';
 
 
 
@@ -19,75 +20,23 @@ import { getAdminLevel } from '../api/auth/functions';
 //({prodImgmg, name, price, productDsc, btnColor})
 //fill this with product from database limit to 20
 const products = [
-        {
-              id:"a1",
-              name:"dell 649",
-              price:50000,
-              dsc:"Intel 64 bits os",
-              category:"laptops",
-              qty: 3,
-              img: "/img/img4.png"
-      },
-      {
-              id:"g2",
-              name:"dell 640",
-              price:60000,
-              dsc:"Intel 64 bits os",
-              category:"smart watches",
-              qty: 5,
-              img: "/img/img5.png"
-        },
-        {
-              id:"u63",
-              name:"dell 645",
-              price:50000,
-              dsc:"Intel 64 bits os",
-              category:"electronics",
-              qty: 2,
-              img: "/img/img6.jpg"
-        },
-        {
-              id:"u69",
-              name:"asa 640",
-              price:60000,
-              dsc:"Intel 64 bits os",
-              category:"electronics",
-              qty: 4,
-              img: "/img/img6.jpg"
-      },
-      {
-              id:"u690",
-              name:"apple 640",
-              price:50000,
-              dsc:"Intel 64 bits os",
-              category:"electronics",
-              qty: 3,
-              img: "/img/img4.png"
-      },
-      {
-              id:"u670",
-              name:"nexus 640",
-              price:60000,
-              dsc:"Intel 64 bits os",
-              category:"electronics",
-              qty: 1,
-              img: "/img/img6.jpg"
-      }
+      
   ];
 
 
 
-  
-  const publickLinks = ['/', '/cart', '/auth', '/create']
+  const publickLinks = ['/', '/cart', '/auth', '/create', '/about']
   const level0 = [...publickLinks, '/oder']
   const level1 = [...level0, '/dashboard']
   const level2 = [...level1, '/dashboard/products', '/dashboard/addproduct']
   const level3 = [...level2, '/dashboard/salse', '/dashboard/credit', '/dashboard/update', '/dashboard/admin']
+  
 
 export const ProductsData = createContext();
 
 const Context = ({ children }) => {
     let router = useRouter();
+
     const [allProducts, setAllproducts] = useState(products);
     
     //to check add and remove from cart
@@ -107,6 +56,82 @@ const Context = ({ children }) => {
 
     const [siteInit, setSiteInit] = useState(false)
 
+    const [apierror, setApiError] = useState(false)
+
+
+    const validate = (level, rout) => {
+      if (level.includes(rout)) {
+        return true
+      }
+    }
+
+    useEffect(()=>{
+      if (getSiteConfig().logo) {
+        const user = getUserInfo();
+        if( user.adminLevel >= 0 ){
+            let rout=router.pathname
+            if (user.adminLevel == 0)  setValidated(validate(level0, rout))
+            if (user.adminLevel == 1)  setValidated(validate(level1, rout))
+            if (user.adminLevel == 2)  setValidated(validate(level2, rout))
+            if (user.adminLevel == 3)  setValidated(validate(level3, rout))
+            //setValidated(true)
+            if(!validated) {
+            
+            }
+        } else {
+            if (publickLinks.includes(router.pathname)) setValidated(true)
+        }
+      } else {
+        setValidated(false)
+      }
+    }, [])
+
+
+    const initLogedInSite = async(currentuser, token) => {
+      //const email = currentuser.email 
+      const logo = getSiteConfig().logo;
+      const userToken = token
+      //get user admin status
+      const adminStatus = await getAdminLevel(token, logo)
+
+      const products = adminStatus.data.level >= 1 ? await getProducts({logo: logo, cat:adminStatus.data.cat}) : await getProducts({logo: logo, cat:"All"})
+      console.log(adminStatus.data)
+      setAllproducts(products.data)
+      setSiteConfig({...getSiteConfig() })
+      
+      const uerInfor = {
+          _id: currentuser.uid,
+          u_name: currentuser.displayName,
+          u_email: currentuser.email,
+          token: userToken,
+          adminLevel: adminStatus.data.level || 0, //this will be set by server based on site's preference
+          admins: adminStatus.data
+        }
+      
+      setUserInfo({
+        _id: currentuser.uid,
+        u_name: currentuser.displayName,
+        u_email: currentuser.email,
+        cart: adminStatus.data.cat || "All",
+        adminLevel: adminStatus.data.level || 0 //this will be set by server based on site's preference
+      })
+      
+      setAppuser(uerInfor)
+      let config = getSiteConfig();
+      if (getSiteConfig().logo) setSiteConfig({...config, cart: createSlides(products.data)})
+      setSiteInit(true)
+    }
+
+    const initLogedOutSite = async() => {
+      const logo = getSiteConfig().logo;
+      //get stores products
+      const products = await getProducts({logo: logo, cat:"All"})
+      setAllproducts(products.data)
+
+      let config = getSiteConfig();
+      if (getSiteConfig().logo) setSiteConfig({...config, cart: createSlides(products.data)})
+          setSiteInit(true)
+    }
 
     //////////////////////////////////////////////////
     /** NOTE IMPLEMENT NETWORK CHECK  */
@@ -114,37 +139,31 @@ const Context = ({ children }) => {
     useEffect(()=>{
       const unsubscribe = onAuthStateChanged(auth, async(currentuser) => {
         if(currentuser) {
-          //alert(currentuser.email)
-          try{
-            const email = currentuser.email 
-            const logo = getSiteConfig().logo;
-              //get user admin status
-              const status = await getAdminLevel(email, logo)
-              //if admin level is 3 then set all admins else set 0
-              setSiteConfig({...getSiteConfig(), admins: status.data.admins ? status.data.admins : 0 })
-              setUserInfo({
-                _id: currentuser.uid,
-                u_name: currentuser.displayName,
-                u_email: currentuser.email,
-                adminLevel: status.data ? status.data.level: 0 //this will be set by server based on site's preference
-              })
-              setAppuser(getUserInfo())
-              let config = getSiteConfig();
-              if (getSiteConfig().logo) setSiteConfig({...config, cart: createSlides(allProducts)})
-              setSiteInit(true)
-          }catch(error){
-            setUserInfo({
-              _id: currentuser.uid,
-              u_name: currentuser.displayName,
-              u_email: currentuser.email,
-              adminLevel: 0 //this will be set by server based on site's preference
+            auth.currentUser.getIdToken(/**forceRefresh */ true).then(async(token)=>{
+              try{
+                initLogedInSite(currentuser, token)
+              }catch(error){
+                setUserInfo({
+                  _id: currentuser.uid,
+                  u_name: currentuser.displayName,
+                  u_email: currentuser.email,
+                  token: token,
+                  adminLevel: 0 //this will be set by server based on site's preference
+                })
+                const products = await getProducts({logo: logo, cat:"All"})
+                setAllproducts(products.data)
+    
+                let config = getSiteConfig();
+                if (getSiteConfig().logo) setSiteConfig({...config, cart: createSlides(products.data)})
+                  setAppuser(getUserInfo())
+                  setSiteInit(true)
+                }
+            }).catch((error)=>{
+                console.log(error)
             })
-            setAppuser(getUserInfo())
-          }
+          //alert(currentuser.email)
         } else {
-          let config = getSiteConfig();
-            if (getSiteConfig().logo) setSiteConfig({...config, cart: createSlides(allProducts)})
-            setSiteInit(true)
+            initLogedOutSite()
         } 
       })
 
@@ -182,9 +201,7 @@ const Context = ({ children }) => {
       }
   }
    
-    const validate = (level, rout) => {
-      if (level.includes(rout)) return true
-    }
+    
 
 
     const getCurrencyRates = async () => {
@@ -202,27 +219,13 @@ const Context = ({ children }) => {
           setCurrenciesRate(0)
         } else {
           setCurrenciesRate(response.rates[to])
-         
         }
       }
 
       request.onerror = (error) => {
         console.log(error)
       }
-      /*
-      const from = siteConfig.currency;
-      const to = userCurencyCodeAndLocal.split(' ')[1]
-      try{
-        const responds = await fetch(
-          `https://api.exchangeratesapi.io/latest?base=${from}&symbols=${to}`
-          )
-        let data = await responds.json()
-        setCurrenciesRate(data.rates[to])
-        alert(data.rates[to])
-      }catch(error){
-        alert("error")
-      }
-      */
+      
     }
 
 
@@ -238,30 +241,7 @@ const Context = ({ children }) => {
     }
 
     
-    
    
-   
-
-    useEffect(()=>{
-      if (getSiteConfig().logo) {
-        const user = getUserInfo();
-        if(user.adminLevel){
-            let rout=router.pathname
-            if (user.adminLevel == 0)  setValidated(validate(level0, rout))
-            if (user.adminLevel == 1)  setValidated(validate(level1, rout))
-            if (user.adminLevel == 2)  setValidated(validate(level2, rout))
-            if (user.adminLevel == 3)  setValidated(validate(level3, rout))
-
-            if(!validated) {
-            
-            }
-        } else {
-            if (publickLinks.includes(router.pathname)) setValidated(true)
-        }
-      } else {
-        setValidated(false)
-      }
-    }, [])
 
   
 
@@ -275,7 +255,10 @@ const Context = ({ children }) => {
       obj[item.id] = false
       setBtnValue(obj)
   }else{
-      cartItems = [...cartItems, item];
+      //set qty property to 1 by default
+      let newItem = item
+      newItem.qty = 1;
+      cartItems = [...cartItems, newItem];
       setCartItems(cartItems);
       let obj = {...btnValue}
       obj[item.id] = true

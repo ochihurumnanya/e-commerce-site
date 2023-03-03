@@ -1,42 +1,53 @@
 
-import {  getSiteConfig, setSalseReceipt } from '../../../../components/LocalStorage'
-import { useState, useEffect } from 'react'
+import { setSalseReceipt } from '../../../../components/LocalStorage'
+import { useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import { ProductsData } from '../../../../context/context';
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
-
+import { addNewSale } from '../../../../api/sale/functions';
+import Spinner from 'react-bootstrap/Spinner'
 
 
  const OderDetails = (props) => {
   
   let router = useRouter();
-  const { siteConfig, formatPrice } = useContext(ProductsData)
+  const { siteConfig, formatPrice, appuser } = useContext(ProductsData)
+  const [errorMsg, setErrorMsg] = useState()
+  const [loading, setLoading] = useState(false)
 
   const[fields, setFields] = useState({
     discount: 0,
   })
 
-  const handlePayment = (oder) =>{
-    //update oder pyment status to paid and subtract all relevent product quntity on server side
-    //update date, staff, and status fields
-     //Update this functionto accomodate discount
-        // props.oder.dicount = fields.discount
-        // the proceed then proceed to send props.oder to server
-      
-        /**
-         * Server will set this props with user authToken.uid
-         * props.oder.staff
-         * props.oder.date
-         */
-        // and oder this time will be new oder gotten from server
-    let newOder = oder;
-    newOder.sataus = "paid" // set by server to paid rout (note remove latter)
-    newOder.discount = fields.discount
-    //set salse receipt to local storage
-    setSalseReceipt(newOder)
-    router.push('/dashboard/reciept')
-  }
+
+  //{ token, address, contact, customer, logo, oderId, products }
+  const handlePayment = async(oder) =>{
+        try {
+              setLoading(true)
+              setErrorMsg("")
+              const res = await addNewSale({
+                  token: appuser.token, 
+                  address: oder.address, 
+                  customer: oder.customer,
+                  contact: oder.contact,
+                  logo: siteConfig.logo,
+                  discount: fields.discount,
+                  oderId: oder.id,
+                  products: oder.products
+              })  
+              //let newOder = oder;
+              //newOder.sataus = "paid" // set by server to paid rout (note remove latter)
+              //newOder.discount = fields.discount
+              //set salse receipt to local storage
+              setSalseReceipt({...res.data, products: JSON.parse(res.data.products)})
+              router.push('/dashboard/reciept')
+        } catch (error) {
+              console.log(error)
+              setLoading(false)
+              setErrorMsg("An unknown error occurred check internet connectivity and try again")
+        }
+    }
 
   const handelChange = (event) =>{
     setFields({ ...fields, [event.target.name]: event.target.value < 0 ? 0 : event.target.value });
@@ -97,11 +108,20 @@ import { useRouter } from 'next/router';
                           </div>
                       </div>
                       }
+                      <div className="txt">
+                          <center><p style={{color: "red"}}>{ errorMsg }</p></center>
+                      </div>
                   </div>
         </Modal.Body>
         <Modal.Footer>
           <button className="btn" style={{background: "#FF5733", marginRight: "20px", color: "white"}} onClick={props.onHide}>Close</button>
-          <button className="btn" style={{background: siteConfig.color, marginRight: "20px", color: "white"}} onClick={()=>handlePayment(props.oder)}>Paid</button>
+
+          <button className="btn" style={{display: loading ? "none" : "block", background: siteConfig.color, marginRight: "20px", color: "white"}} onClick={()=>handlePayment(props.oder)}>
+              Paid
+          </button>
+          <button className="btn" style={{display: loading ? "block" : "none", background: siteConfig.color, marginRight: "20px", color: "white"}} >
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> processing... 
+          </button>
         </Modal.Footer>
       </Modal>
       ) 

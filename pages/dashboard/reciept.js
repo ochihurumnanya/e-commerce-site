@@ -1,4 +1,4 @@
-import {  getSiteConfig, getSalseReceipt } from '../../components/LocalStorage'
+import {  getSiteConfig, getSalseReceipt,  cleanCart, } from '../../components/LocalStorage'
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react'
 import { ProductsData } from '../../context/context';
@@ -12,7 +12,9 @@ const Receipt = () => {
     const [recipt, setRecipt] = useState({})
 
     useEffect(()=>{
-        setRecipt(getSalseReceipt());
+        setRecipt(getSalseReceipt())
+        //clear cart items
+        cleanCart('cartItems')
     }, [])
     //getSalseReceipt
 
@@ -76,19 +78,19 @@ const Receipt = () => {
                                          <li><span className="me-3 float-start">Total Amount:</span><i className="fas fa-dollar-sign"></i> 
                                             { recipt.products ? formatPrice(recipt.products.reduce((a, c) => a + c.price * c.qty, 0)) : "" }
                                          </li>
-                                         <li> <span className="me-5">Discount:</span><i className="fas fa-dollar-sign"></i>{ recipt.discount ? formatPrice(recipt.discount) : "" }</li>
+                                         <li> <span className="me-5">Discount:</span>{ recipt.discount ? formatPrice(recipt.discount) : "" }</li>
                                      </ul>
                                      </div>
                                  </div>
                                  <hr/>
                                  <div className="row">
                                      <div className="col-xl-8" style={{marginLeft: "60px"}}>
-                                     <p className="float-end"
+                                      <p className="float-end"
                                          style={{fontSize: "30px", color: "red", fontWeight: "400", fontFmily: "Arial, Helvetica, sans-serif"}}>
                                          Total:
-                                         <span><i className="fas fa-dollar-sign"></i> { recipt.products ? formatPrice(recipt.products.reduce((a, c) => a + c.price * c.qty, 0) - recipt.discount) : ""}</span></p>
+                                         <span><i className="fas fa-dollar-sign"></i> { recipt.products ? formatPrice(recipt.products.reduce((a, c) => a + c.price * c.qty, 0) - recipt.discount) : ""}</span>
+                                      </p>
                                      </div>
-             
                                  </div>
              
                                  <div className="row mt-2 mb-5">
@@ -97,8 +99,6 @@ const Receipt = () => {
                                  </div>
              
                                  </div>
-             
-             
                                  <button className="btn" style={{background: siteConfig.color, marginRight: "40px", float:"right", color: "white"}} >Print</button>
                              </div>
                              <div className="card-footer bg-black"></div>
