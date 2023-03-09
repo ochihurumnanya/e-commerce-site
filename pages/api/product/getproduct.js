@@ -36,7 +36,7 @@ export default async (req, res) => {
                 }
             }
         }catch(error){
-            console.log(req.body)
+            console.log(error)
             console.log("get product error")
             res.status(501).json({message: "An error occured"})
         }

@@ -1,7 +1,4 @@
-//end point
-//pages/api/user  (to create new user)
-//import { db, auth } from "../../../utils/db";
-import { getAdminLevel } from "../../../api/auth/functions";
+
 import { db, auth } from "../../../utils/db";
 //import { verifyuser } from "../../utils/functions/verifyuser";
 
@@ -24,7 +21,7 @@ export default async (req, res) => {
                                     res.status(200).json({level: adminStatus[0].level, cat:adminStatus[0].cat, admins: JSON.parse(existDocSnap.data().admins) })
                                 } else {
                                     //success
-                                    res.status(200).json({ level: adminStatus[0].level })
+                                    res.status(200).json({ level: adminStatus[0].level, cat: adminStatus[0].cat })
                                 }
                             } else {
                                 res.status(200).json({ level: 0 })

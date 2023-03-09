@@ -51,7 +51,7 @@ const Product = ({btnColor, color, product}) => {
                     <div>
                         <b>Description:</b> { parsedProduct.dsc }
                         <p>
-                            <b>Price:</b> { formatPrice(parsedProduct.price ) }
+                            <b>Price:</b> { parsedProduct.price > 0 ? formatPrice(parsedProduct.price) : "NO FIXED PRICE" }
                         </p>
                     </div>
                     <div style={{ background:  btnValue[parsedProduct.id] ? color : btnColor }} className="add-to-cart btn-cat"  onClick={()=>{addRemoveCartItems(parsedProduct, btnColor, color, setBtnValue)}} > { btnValue[parsedProduct.id] ? "Remove From Cart" : "Add To Cart"}</div>

@@ -18,7 +18,7 @@ export default async (req, res) => {
      */
 try{
         //date could either be [""] or ["YYYY-MM-DD"]
-        const { token, logo, date} = req.body;
+        const { token, logo, staff, date} = req.body;
         //POST METHOD  TO CREATE SITE
         if (
             logo.trim().length < 50
@@ -37,13 +37,17 @@ try{
                         if(adminStatus[0]){
                             if (adminStatus[0].level === 3) {
                                     let sales = []
-                                    const salseRef = db.collection("stores").doc(logo).collection("salse")
-                                    const salseDocSnap = salseRef.where('qdate', '==', qdate)
+                                    const salseRef = db.collection("stores").doc(logo).collection("sales")
+                                    const salseDocSnap = staff.trim().length < 100 ? 
+                                                await salseRef.where('qdate', '==', qdate).get()
+                                                : 
+                                                await salseRef.where('qdate', '==', qdate).where('staff', '==', staff).get()
+                                        
 
-                                    if (salseDocSnap.exists){
+                                    if (!salseDocSnap.empty){
                                         salseDocSnap.forEach((doc)=>{
                                             sales.push({
-                                                ...doc.data(), id: doc.id
+                                                ...doc.data(), id: doc.id, products: JSON.parse(doc.data().products)
                                             })
                                         })
                                         //success 

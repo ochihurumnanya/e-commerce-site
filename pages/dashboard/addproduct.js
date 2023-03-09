@@ -73,7 +73,7 @@ const AddProduct = () => {
 
       if (name.trim().length > 30) { //not this will be verified and sent from create site homePage
         setErrorMsg("Store name must be less than 30 characters")
-      } else if (price <= 0) {
+      } else if (price < 0) {
         setErrorMsg("Enter product price")
       } else if (qty <= 0) {
         setErrorMsg("Enter product quantity")
@@ -81,7 +81,7 @@ const AddProduct = () => {
         setErrorMsg("Enter product category")
       } else if (!dsc.trim().length) {
         setErrorMsg("Enter product description")
-      }  else{
+      }  else {
         try{
           let file = document.getElementById("product-img")?.files[0]
           let sizeInMb = bytesToMegaBytes(document.getElementById("product-img")?.files[0].size)
@@ -167,7 +167,7 @@ const AddProduct = () => {
                           <input className="form-control" onChange={handelChange} value={fields.name} name="name"  type="text" placeholder="product name" required />
                           </div>
                           <div className="txt">
-                            Enter product price. Currency({siteConfig.currency})  {formatedPrice}
+                            Enter product price. Currency({siteConfig.currency})  {formatedPrice} <b>If product or service has no fixed price, just enter 0</b>
                             <input className="form-control" onChange={handelChange} value={fields.price}  name="price" type="number" placeholder="product price" />
                           </div>
                           <div className="txt">

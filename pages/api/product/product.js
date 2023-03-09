@@ -15,7 +15,7 @@ try{
             name.trim().length < 200 && 
             logo.trim().length < 50 &&
             filename.trim().length < 50 &&
-            price > 0 &&
+            price >= 0 &&
             qty > 0 &&
             cat.trim().length <= 20 &&
             dsc.trim().length <= 100 &&

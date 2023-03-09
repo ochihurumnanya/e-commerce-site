@@ -24,7 +24,7 @@ import { useContext } from 'react';
                           <p></p>
                           <b>STATUS :</b> <span style={{color: props.sale.status == "paid" ? "green" : "red" }}>{props.sale.status}</span>
                           <p></p>
-                          <b>DATE :</b> {props.sale.date}
+                          <b>DATE :</b> {props.sale.createdAt}
                           <h4>Contact Info.</h4>
                           {props.sale.contact}
   
@@ -65,7 +65,7 @@ import { useContext } from 'react';
                                          <span>{ props.sale.products ? formatPrice(props.sale.products.reduce((a, c) => a + c.price * c.qty, 0) - props.sale.discount) : ""}</span>
                                       </p>
                                      </div>
-                                 </div>
+                              </div>
                           </div>
                       </div>
                       }

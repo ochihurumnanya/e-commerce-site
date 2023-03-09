@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Product from "./elements/products/product";
-import {  getSiteConfig, setSiteConfig } from '../../components/LocalStorage'
+//import {  getSiteConfig, setSiteConfig } from '../../components/LocalStorage'
 import EditProductModal from "./elements/products/EditProductModal";
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
@@ -8,7 +8,7 @@ import ProductSearch from "./elements/products/ProductSearch";
 import ReactPaginate from "react-paginate";
 import Link from 'next/link';
 import { createSlides } from "./elements/products/functions";
-import { deleteProduct } from "../../api/product/functions";
+//import { deleteProduct } from "../../api/product/functions";
 import DeleteProductModal from "./elements/products/DeleteDialogModal";
 
 
@@ -118,7 +118,7 @@ const handelChange = (event) =>{
   const deleteProduct = (pid) => {
     let delProduct = {...allProducts.filter((item) => item.id === pid)[0], logo: siteConfig.logo}
     setFields(delProduct)
-    console.log(delProduct)
+    //console.log(delProduct)
     setDelModalShow(true)
   }
 

@@ -2,7 +2,6 @@ import Modal from 'react-bootstrap/Modal'
 import { useState, useEffect } from 'react';
 import { ProductsData } from '../../context/context';
 import { useContext } from 'react';
-import { useRouter } from 'next/router';
 import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
 import { deleteOder } from '../../api/oder/functions';

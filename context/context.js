@@ -93,9 +93,8 @@ const Context = ({ children }) => {
       const userToken = token
       //get user admin status
       const adminStatus = await getAdminLevel(token, logo)
-
+      console.log(adminStatus)
       const products = adminStatus.data.level >= 1 ? await getProducts({logo: logo, cat:adminStatus.data.cat}) : await getProducts({logo: logo, cat:"All"})
-      console.log(adminStatus.data)
       setAllproducts(products.data)
       setSiteConfig({...getSiteConfig() })
       
@@ -134,7 +133,7 @@ const Context = ({ children }) => {
     }
 
     //////////////////////////////////////////////////
-    /** NOTE IMPLEMENT NETWORK CHECK  */
+    /** NOTE IMPLEMENT NETWORK CHECK */
     /**AUTHENTICATION*/
     useEffect(()=>{
       const unsubscribe = onAuthStateChanged(auth, async(currentuser) => {
@@ -175,8 +174,7 @@ const Context = ({ children }) => {
 
     
     useEffect(()=>{
-        //this should be initialize from product comming from db by site logo Name on context page
-      setAllproducts(products)
+      //this should be initialize from product comming from db by site logo Name on context page
       getCurrencyRates()
       getCurrencyCodeAndLocal()
     }, [])
@@ -193,19 +191,20 @@ const Context = ({ children }) => {
           style: "currency",
           currency:currency.split(' ')[1]
       })
-      
       if (storeOwnerCurrency.split(' ')[0] == currency.split(' ')[0]){
           return currencyForm.format(price)
       }else{
           return currencyForm.format(calRatePrice)
       }
   }
-   
+  
     
 
 
     const getCurrencyRates = async () => {
+      //from - store owner currency
       const from = getSiteConfig().currency.split(" ")[1];
+      //to -  user currency code
       const to = userCurencyCodeAndLocal.split(' ')[1]
       let url = `https://api.exchangerate.host/latest?base=${from}`
       let request = new XMLHttpRequest();
@@ -214,7 +213,7 @@ const Context = ({ children }) => {
       request.send()
       request.onload = () => {
         let response = request.response;
-       //alert(response.rates["USD"])
+        //alert(response.rates["USD"])
         if(to == from){
           setCurrenciesRate(0)
         } else {
@@ -223,27 +222,27 @@ const Context = ({ children }) => {
       }
 
       request.onerror = (error) => {
-        console.log(error)
+        setSiteInit(false)
       }
       
     }
 
 
     const getCurrencyCodeAndLocal = async () => {
-          const responds = await fetch(
-            'https://ipapi.co/json/'
-          )
-          let data = await responds.json()
-          let local = data.languages.split(",")[0] || "en-US"
-          let currency = data.currency || "USD"
-          setUserCurencyCodeAndLocal(`${local} ${currency}`)
-          setApiLoaded(true)
+      try {
+        const responds = await fetch(
+          'https://ipapi.co/json/'
+        )
+        let data = await responds.json()
+        let local = data.languages.split(",")[0] || "en-US"
+        let currency = data.currency || "USD"
+        setUserCurencyCodeAndLocal(`${local} ${currency}`)
+        setApiLoaded(true)
+      } catch(error) {
+        setSiteInit(false)
+      }
     }
 
-    
-   
-
-  
 
  //add and remove cart item
  const addRemoveCartItems = (item, btnColor, color, setBtnValue) => {
@@ -254,7 +253,7 @@ const Context = ({ children }) => {
       let obj = {...btnValue}
       obj[item.id] = false
       setBtnValue(obj)
-  }else{
+  } else {
       //set qty property to 1 by default
       let newItem = item
       newItem.qty = 1;
@@ -276,8 +275,8 @@ const Context = ({ children }) => {
 }
 
     if (!validated) return (
-                              <InvalidRequest />
-                            )
+        <InvalidRequest />
+    )
       
  
    if (apiLoaded && siteInit) {

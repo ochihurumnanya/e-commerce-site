@@ -17,10 +17,11 @@ const SalesItem = ({ sale, amount, salse, setSale, deleteSale, setModalShow }) =
         <tr>
             <td>{sale.staff}</td>
             <td>{ amount }</td>
-            <td>{sale.date}</td>
+            <td>{sale.createdAt}</td>
             <td><button onClick={() => {showSale(sale)}}  className="btn-edit">Details</button></td>
-            <td><button onClick={() => {deleteSale(sale.id)}} className="btn-delete">Delete</button></td>
+            
         </tr>
     )
 }
 export default SalesItem;
+//<td><button onClick={() => {deleteSale(sale.id)}} className="btn-delete">Delete</button></td>

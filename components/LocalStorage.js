@@ -45,7 +45,7 @@ const clearItemCheck = (key) => {
   export const clearUser = () => {
     clearItemCheck('userInfo')
   };
-
+  
   //to clear all storage
   export const clearStorage = (key) => {
     clearItemCheck(key)
@@ -61,7 +61,7 @@ const clearItemCheck = (key) => {
       ? JSON.parse(getItemCheck('cartItems'))
       : [];
     return cartItems;
-  };
+  }
 
    /*
    * getSalseReceipt - function that returns salsereceipt items

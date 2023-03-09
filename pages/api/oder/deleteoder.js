@@ -1,7 +1,7 @@
 //end point
 //pages/api/user  (to create new user)
 
-import { db, auth, storage } from "../../../utils/db";
+import { db, auth } from "../../../utils/db";
 
 
 
