@@ -3,13 +3,23 @@ import  Products  from "../elements/home/Products";
 //import SellectCart from "../components/SellectCart";
 import { ProductsData } from '../context/context';
 import { useContext } from 'react';
+import WelcomeAdmin from "../elements/home/WelcomeAdmin";
+import { useState, useEffect } from "react";
 
 
 
 const Home = () => {
     //using global context
-    const {allProducts, siteConfig} = useContext(ProductsData);
-    
+    const {allProducts, siteConfig, appuser} = useContext(ProductsData);
+    const [welcomeModalShow, setWelcomeModalShow] = useState(false)
+    //setModalShow(false)
+
+    useEffect(()=>{
+      if (appuser.adminLevel >= 1) {
+        setWelcomeModalShow(true)
+      }
+    }, [])
+
      if (allProducts.length){
         return (
           <>
@@ -23,6 +33,11 @@ const Home = () => {
               products={JSON.stringify(allProducts)} 
               btnColor={siteConfig.btnColor}
               color={siteConfig.color}
+            />
+            
+            <WelcomeAdmin
+                      show={welcomeModalShow}
+                      onHide={() => setWelcomeModalShow(false)}
             />
           </>
         )

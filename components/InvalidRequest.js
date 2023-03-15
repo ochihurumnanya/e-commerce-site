@@ -15,20 +15,25 @@ const InvalidRequest = () => {
     const [page, setPage] = useState("loading")
 
     useEffect(()=>{
+
         const getConfig = async() => {
-            try{
-                let url = document.URL.split('/')
-                const site = url[url.length-1]
-                //alert(site)
-                const res = await getSiteconfig({logo:site})
-                setSiteConfig(res.data)
-                router.push('/')
-            }catch(error){
-                logOut()
-                clearStorage('userInfo')
-                clearStorage('cartItems')
-                clearStorage('salsereceipt')
-                clearStorage('siteConfig')
+            let url = document.URL.split('/')
+            const site = url[url.length-1]
+            if(site.trim().length >= 4){
+                try{
+                    const res = await getSiteconfig({logo:site})
+                    setSiteConfig(res.data)
+                    location = '/'
+                }catch(error){
+                    //alert("invalid error")
+                    logOut()
+                    clearStorage('userInfo')
+                    clearStorage('cartItems')
+                    clearStorage('salsereceipt')
+                    clearStorage('siteConfig')
+                    setPage("home")
+                }
+            } else {
                 setPage("home")
             }
         }

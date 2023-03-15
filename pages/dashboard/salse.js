@@ -155,8 +155,6 @@ import Spinner from 'react-bootstrap/Spinner'
                     );
                 }
                
-              
-             
             } catch(error) {
                 setApiError("An error occured check internet connectivity")
                 setApiLoading(false)
